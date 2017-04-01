@@ -3,7 +3,7 @@ const storage = require('node-persist');
 const bot = new Discord.Client();
 const triviamodule = require('./trivia.js');
 const utils = require('./utils.js');
-const token = require('token.js');
+const token = require('./token.js');
 
 var prefix = "!";
 var currentspammedwords;
