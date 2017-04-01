@@ -1,3 +1,9 @@
+# Bot Token
+token.js
+
+# Node-Persist Data
+.node-persist
+
 # Logs
 logs
 *.log
