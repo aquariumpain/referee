@@ -1,15 +1,16 @@
 const Discord = require("discord.js");
 const storage = require('node-persist');
 const bot = new Discord.Client();
-const triviamodule = require('./trivia.js');
+const trivia = require('./trivia.js');
 const utils = require('./utils.js');
 const token = require('./token.js');
 
-var prefix = "!";
+var prefix = "()";
+var refereeserverlink = "https://discord.gg/CncfjgM";
 var currentspammedwords;
 var spamword;
 var spamgoal;
-var triviachannel;
+var triviamoduleobjects = {};
 var commands = {
 	"ping": {
 		"response": function(bot, msg) {
@@ -18,33 +19,73 @@ var commands = {
 			embed.setTitle("Pong! Your ping is " + bot.ping + "ms")
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Returns average ping \n Usage: " + prefix + "ping"
+		"bio": "Returns average ping",
+		"syntax": "ping"
 	},
 	"say": {
 		"response": function(bot, msg, args) {
-			msg.channel.sendMessage(args);
+			if (args) {
+				msg.channel.sendMessage(args);
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Please give something to say!");
+				msg.channel.sendEmbed(embed);
+			}
 		},
-		"bio": "Makes referee say something \n Usage: " + prefix + "say <text>"
+		"bio": "Makes referee say something",
+		"syntax": "say <something to say>"
 	},
 	"help": {
-		"response": function(bot, msg) {
-			var helparray = getHelpDescription();
-			for (var i = 0; i < helparray.length; i += 10) {
-				var joined = helparray.slice(i, (i+10));
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle("Available referee Commands");
-				embed.setDescription(joined);
-				msg.author.sendEmbed(embed);
-			}
-			//msg.author.sendMessage("```" + getHelpDescription() + "```");
+		"response": function(bot, msg, args) {
+			if (!args) {
+				var embed3 = new Discord.RichEmbed();
+				embed3.setColor(0x00FFFF);
+				embed3.addField("Default referee Prefix", "`" + prefix + "`", false);
+				var serverprefix = storage.getItemSync(msg.guild.id + "_prefix");
+				if (serverprefix) {
+					embed3.addField(msg.guild.name + "'s Custom Prefix", "`" + serverprefix + "`", false);
+				}
+				embed3.addField("Join the Official referee server", refereeserverlink, false);
+				msg.author.sendEmbed(embed3);
+				var helparray = getHelpDescription();
+				for (var i = 0; i < helparray.length; i += 15) {
+					var joined = helparray.slice(i, (i+15));
 
-			var embed2 = new Discord.RichEmbed();
-			embed2.setColor(0x00FFFF);
-			embed2.setTitle("A list of commands has been sent to your DMs");
-			msg.channel.sendEmbed(embed2);
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Available referee Commands");
+					embed.setDescription(joined);
+					msg.author.sendEmbed(embed);
+				}
+				var embed2 = new Discord.RichEmbed();
+				embed2.setColor(0x00FFFF);
+				embed2.setTitle("A list of commands has been sent to your DMs");
+				msg.channel.sendEmbed(embed2);
+			}
+			else {
+				var command = commands[args];
+				if (command) {
+					var serverprefix = storage.getItemSync(msg.guild.id + "_prefix");
+					if (!serverprefix) {
+						serverprefix = prefix;
+					}
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.addField(prefix + args + " - " + command.bio, "Usage: " + serverprefix + command.syntax, false);
+					msg.channel.sendEmbed(embed);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Please give a valid command!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
 		},
-		"bio": "Displays a list of commands \n Usage: " + prefix + "help"
+		"bio": "Displays a list of commands or more detailed info about a command",
+		"syntax": "help [command]"
 	},
 	"setadminrole": {
 		"response": function (bot, msg, args) {
@@ -82,7 +123,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Sets Admin Role. Leaving the role name blank will reset your set admin role. *(ADMIN COMMAND)* \n Usage: " + prefix + "setadminrole <rolename>"
+		"bio": "Sets Admin Role. Leaving the role name blank will reset your current admin role. *(ADMIN COMMAND)*",
+		"syntax": "setadminrole <role name>"
 	},
 	"event": {
 		"response": function(bot, msg, args) {
@@ -90,78 +132,89 @@ var commands = {
 			eventtype = arglist[0];
 			arg1 = arglist[1];
 			arg2 = arglist[2];
-			if (eventtype.toLowerCase() == "cancel") {
-				var triviachannel = msg.guild.channels.find(function(el) {
-					return el.name == "trivia";
-				});
-				triviamodule.resetTrivia(storage, msg, triviachannel);
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Event Canceled");
-				msg.channel.sendEmbed(embed);
-			}
-			else {
-				if(isAdminRole(msg.member) == true) {
-					if (!storage.getItemSync(msg.author.id + msg.guild.id + "_eventactive")) {
-						if (eventtype.toLowerCase() == "trivia") {
-							storage.setItemSync(msg.author.id + msg.guild.id + "_eventactive", true);
-							msg.guild.createChannel("trivia", "text").then( function() {
-								triviachannel = msg.guild.channels.find(function(el) {
-									return el.name == "trivia";
-								});
-								triviamodule.triviaEvent(triviachannel, Discord, storage, bot);
-							});
-						}
-						else if (eventtype.toLowerCase() == "spam") {
-							if (!isNaN(arg2)) {
-								storage.setItemSync(msg.author.id + msg.guild.id + "_eventactive", true);
-								storage.setItemSync(msg.guild.id + "_spamword", arg1);
-								storage.setItemSync(msg.guild.id + "_spamgoal", arg2);
-								storage.setItemSync(msg.guild.id + "_spamcurrentcounter", 0);
-								spamWordEvent();
-								var embed = new Discord.RichEmbed();
-								embed.setColor(0x00FFFF);
-								embed.setTitle("Spam Event Started. The word is " + arg1 + "!");
-								msg.channel.sendEmbed(embed);
-							}
-							else {
-								var embed = new Discord.RichEmbed();
-								embed.setColor(0xFF0000);
-								embed.setTitle("Uh Oh! Please give a valid number of words to spam!");
-								msg.channel.sendEmbed(embed);
-							}
+			if(isAdminRole(msg.member) == true) {
+				if (!storage.getItemSync(msg.guild.id + "_eventactive")) {
+					if (eventtype.toLowerCase() == "trivia") {
+						storage.setItemSync(msg.guild.id + "_eventactive", true);
+						msg.guild.createChannel("trivia", "text").then( function(el) {
+							var thistriviamodule = new trivia.create();
+							triviamoduleobjects[msg.guild.id + "_triviamodule"] = thistriviamodule;
+							var triviachannel = el;
+							thistriviamodule.triviaStart(triviachannel, Discord, storage, bot);
+						});
+					}
+					else if (eventtype.toLowerCase() == "spam") {
+						if (!isNaN(arg2)) {
+							storage.setItemSync(msg.guild.id + "_eventactive", true);
+							storage.setItemSync(msg.guild.id + "_spamword", arg1);
+							storage.setItemSync(msg.guild.id + "_spamgoal", arg2);
+							storage.setItemSync(msg.guild.id + "_spamcurrentcounter", 0);
+							spamWordEvent();
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FFFF);
+							embed.setTitle("Spam Event Started. The word is " + arg1 + "!");
+							msg.channel.sendEmbed(embed);
 						}
 						else {
 							var embed = new Discord.RichEmbed();
 							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid event type such as Trivia or Spam!");
+							embed.setTitle("Uh Oh! Please give a valid number of words to spam!");
 							msg.channel.sendEmbed(embed);
 						}
 					}
 					else {
 						var embed = new Discord.RichEmbed();
 						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Looks like there's already an event in progress!");
+						embed.setTitle("Uh Oh! Please give a valid event type such as Trivia or Spam!");
 						msg.channel.sendEmbed(embed);
 					}
-					}
+				}
+				else if (eventtype.toLowerCase() == "cancel") {
+					var triviachannel = msg.guild.channels.find(function(el) {
+						return el.name == "trivia";
+					});
+					var thistriviamodule = triviamoduleobjects[msg.guild.id + "_triviamodule"];
+					thistriviamodule.resetTrivia(storage, msg, triviachannel);
+					//storage.setItemSync(msg.guild.id + "_eventactive", false);
+					bot.emit('spamcanceled');
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Event Canceled");
+					msg.channel.sendEmbed(embed);
+				}
 				else {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+					embed.setTitle("Uh Oh! Looks like there's already an event in progress!");
 					msg.channel.sendEmbed(embed);
 				}
 			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
 		},
-		"bio": "Starts an event. [WIP] *(ADMIN COMMAND)* \n Available Events: Trivia, Spam \n Usage: " + prefix + "event <event> [arg1] [arg2]"
+		"bio": "Starts an event. *(ADMIN COMMAND)* \n Available Events: Trivia, Spam",
+		"syntax": "event <event name|cancel> [arg1] [arg2]"
 	},
 	"rate": {
 		"response": function(bot, msg, args) {
 			if (args) {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10")
-				msg.channel.sendEmbed(embed);
+				var text = args;
+				if (text.length < 200) {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FF00);
+					embed.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10");
+					msg.channel.sendEmbed(embed);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! How do I rate something I can't even say!?!");
+					msg.channel.sendEmbed(embed);
+				}
 			}
 			else {
 				var embed = new Discord.RichEmbed();
@@ -170,7 +223,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Rates something \n Usage: !rate <something to rate>"
+		"bio": "Rates something",
+		"syntax": "rate <something to rate>"
 	},
 	"score": {
 		"response": function(bot, msg) {
@@ -187,7 +241,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Returns your score \n Usage: " + prefix + "score"
+		"bio": "Returns your score",
+		"syntax": "score"
 	},
 	"clearscore": {
 		"response": function(bot, msg, args) {
@@ -197,7 +252,8 @@ var commands = {
 			embed.setTitle(msg.author.username + "'s score has been reset");
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Clears your balance \n Usage: " + prefix + "clearscore"
+		"bio": "Clears your balance",
+		"syntax": "clearscore"
 	},
 	"clearallscores": {
 		"response": function(bot, msg) {
@@ -217,7 +273,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Clears all scores *(ADMIN COMMAND)* \n Usage: " + prefix + "clearallscores"
+		"bio": "Clears all scores *(ADMIN COMMAND)*",
+		"syntax": "clearallscores"
 	},
 	"leaderboard": {
 		"response": function(bot, msg, args) {
@@ -254,7 +311,8 @@ var commands = {
 			});
 			msg.channel.sendMessage(":clipboard: **" + msg.guild.name + "'s Leaderboard**\n```" + leaderboardoutput + " \n ------------------------------------------------------ \n▶ Your Rank: " + (rank+1) + " - Your Score: " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "  👀```");
 		},
-		"bio": "Displays a leaderboard for this server \n Usage: " + prefix + "leaderboard"
+		"bio": "Displays a leaderboard for this server",
+		"syntax": "leaderboard"
 	},
 	"add": {
 		"response": function(bot, msg, args) {
@@ -276,7 +334,8 @@ var commands = {
 			}
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Adds an amount to your balance \n Usage: " + prefix + "add <amount>"
+		"bio": "Adds an amount to your balance",
+		"syntax": "add <amount>"
 	},
 	"value": {
 		"response": function(bot, msg, args) {
@@ -292,7 +351,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Checks your balance \n Usage: " + prefix + "value"
+		"bio": "Checks your balance",
+		"syntax": "value"
 	},
 	"clearvalue": {
 		"response": function(bot, msg, args) {
@@ -302,7 +362,8 @@ var commands = {
 			embed.setTitle(msg.author.username + "'s value has been reset");
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Clears your balance \n Usage: " + prefix + "clearvalue"
+		"bio": "Clears your balance",
+		"syntax": "clearvalue"
 	},
 	"dice": {
 		"response": function(bot, msg, args) {
@@ -311,7 +372,8 @@ var commands = {
 			embed.setTitle(":game_die: " + utils.getRandomIntInclusive(1, 6) + " :game_die:");
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Rolls dice \n Usage: " + prefix + "dice"
+		"bio": "Rolls dice",
+		"syntax": "dice"
 	},
 	"slots": {
 		"response": function(bot, msg, args) {
@@ -363,7 +425,8 @@ var commands = {
 			}
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Plays slots \n Usage: " + prefix + "slots <bet>"
+		"bio": "Plays slots",
+		"syntax": "slots <bet>"
 	},
 	"addgetrole": {
 		"response": function(bot, msg, args) {
@@ -391,7 +454,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Adds a role to the getrole command *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE***\n Usage: " + prefix + "addgetrole <role>"
+		"bio": "Adds a role to the getrole command *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE***",
+		"syntax": "addgetrole <role name>"
 	},
 	"getrole": {
 		"response": function(bot, msg, args) {
@@ -404,7 +468,16 @@ var commands = {
 					return el.roleid == roletoadd.id;
 				});
 				if (gettable) {
-					msg.member.addRole(roletoadd);
+					try {
+						msg.member.addRole(roletoadd).then(
+							function (u) {
+							},
+							function (reason) {
+							}
+						);
+					}
+					catch (e) {
+					}
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FF00);
 					embed.setTitle("You have received the " + roletoadd.name + " role!");
@@ -424,37 +497,124 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Gets you a role if it is available \n Usage: " + prefix + "getrole <role>"
+		"bio": "Gets you a role if it is available",
+		"syntax": "getrole <role name>"
 	},
 	"autorole": {
 		"response": function(bot, msg, args) {
 			if(isAdminRole(msg.member) == true) {
 				if (args) {
-					var roletoadd = msg.guild.roles.find(function(el) {
-						return el.name == args;
-					});
-					if (roletoadd) {
-						storage.setItemSync(msg.guild.id + "_autorole", roletoadd.id);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FF00);
-						embed.setTitle("The " + roletoadd.name + " role will now be added automatically when a user joins this server!");
-						msg.channel.sendEmbed(embed);
+					arglist = parseArguments(args, 2);
+					arg1 = arglist[0];
+					arg2 = arglist[1];
+					if (arg1 == "add") {
+						var roletoadd = msg.guild.roles.find(function(el) {
+							return el.name == arg2;
+						});
+						if (roletoadd) {
+							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+							if (!rolearray) {
+								rolearray = [];
+							}
+							rolearray.push(roletoadd.id);
+							storage.setItemSync(msg.guild.id + "_autorole", rolearray);
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FF00);
+							embed.setTitle("The " + roletoadd.name + " role will now be added automatically when a user joins this server!");
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "remove") {
+						var roletoremove = msg.guild.roles.find(function(el) {
+							return el.name == arg2;
+						});
+						if (roletoremove) {
+							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+							if (rolearray) {
+								var index = rolearray.indexOf(roletoremove.id);
+								if (index && index > -1) {
+	    						rolearray.splice(index, 1);
+									storage.setItemSync(msg.guild.id + "_autorole", rolearray);
+								}
+								else {
+									var embed = new Discord.RichEmbed();
+									embed.setColor(0xFF0000);
+									embed.setTitle("Uh Oh! This role is not set as an autorole!");
+									msg.channel.sendEmbed(embed);
+								}
+							}
+							else {
+								var embed = new Discord.RichEmbed();
+								embed.setColor(0xFF0000);
+								embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+								msg.channel.sendEmbed(embed);
+							}
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "clear") {
+						var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+						if (rolearray) {
+							storage.removeItemSync(msg.guild.id + "_autorole");
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FF00);
+							embed.setTitle("Autoroles Reset!");
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "list") {
+						var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+						var rolelist = "";
+						if (rolearray) {
+							rolearray.forEach(function (el) {
+								var role = msg.guild.roles.find(function(ele) {
+									return ele.id == el;
+								});
+								rolelist += role.name + " | ";
+							});
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FFFF);
+							embed.setTitle("All Autorole Roles for " + msg.guild.name);
+							embed.setDescription(rolelist);
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+							msg.channel.sendEmbed(embed);
+						}
 					}
 					else {
 						var embed = new Discord.RichEmbed();
 						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid role!");
+						embed.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list autoroles!");
 						msg.channel.sendEmbed(embed);
 					}
+
 				}
 				else {
-					if (storage.getItemSync(msg.guild.id + "_autorole")) {
-						storage.removeItemSync(msg.guild.id + "_autorole");
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FF00);
-						embed.setTitle("Autorole Reset!");
-						msg.channel.sendEmbed(embed);
-					}
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Please give valid arguments!");
+					msg.channel.sendEmbed(embed);
 				}
 			}
 			else {
@@ -464,7 +624,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Automatically assigns this role when a user joins the server. Leaving the role blank will reset your current set role. *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE AUTOROLE ROLE***\n Usage: " + prefix + "autorole <role to add automatically>"
+		"bio": "Automatically assigns roles when a user joins the server. *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE AUTOROLE ROLE***",
+		"syntax": "autorole <add|remove|clear (removes all roles)|list> [role name]"
 	},
 	"announce": {
 		"response": function(bot, msg, args) {
@@ -516,7 +677,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Sets an welcome or leave message. Leaving the message blank will clear your set message. *(ADMIN COMMAND)* \n Usage: " + prefix + "announce <welcome|leave> <message>"
+		"bio": "Sets an welcome or leave message. Leaving the message blank will clear your set message. *(ADMIN COMMAND)*",
+		"syntax": "announce <welcome|leave> <message>"
 	},
 	"serverinfo": {
 		"response": function(bot, msg, args) {
@@ -532,9 +694,9 @@ var commands = {
 			embed.setAuthor(msg.author.username, msg.author.avatarURL);
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Gives basic server info \n Usage: " + prefix + "serverinfo"
+		"bio": "Gives basic server info",
+		"syntax": "serverinfo"
 	},
-
 	"avatar": {
 		"response": function(bot, msg, args) {
 			if(args == "") {
@@ -573,9 +735,9 @@ var commands = {
 				}
 			}
 		},
-		"bio": "Displays the avatar of a user (in this server) or self if no user is given \n Usage: " + prefix + "avatar exampleuser#1234, " + prefix + "avatar @exampleuser#1234, or " + prefix + "avatar"
+		"bio": "Displays the avatar of a user (in this server) or self if no user is given",
+		"syntax": "avatar <exampleuser#1234 | @exampleuser#1234>"
 	},
-
 	"userinfo": {
 		"response": function(bot, msg, args) {
 			if(args == "") {
@@ -611,7 +773,8 @@ var commands = {
 			msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Displays info about a user (in this server) or self if no user is given \n Usage: " + prefix + "userinfo exampleuser#1234, " + prefix + "userinfo @exampleuser#1234, or " + prefix + "userinfo"
+		"bio": "Displays info about a user (in this server) or self if no user is given",
+		"syntax": "userinfo <exampleuser#1234 | @exampleuser#1234>"
 	},
 	"stats": {
 		"response": function(bot, msg, args) {
@@ -627,7 +790,8 @@ var commands = {
 			embed.addField("Library", "discord.js", true);
 			msg.channel.sendEmbed(embed);
 		},
-		"bio": "Gives basic bot info \n Usage: " + prefix + "stats"
+		"bio": "Gives basic bot info",
+		"syntax": "stats"
 	},
 	"ban": {
 		"response": function(bot, msg, args) {
@@ -636,23 +800,32 @@ var commands = {
 				var arg1 = arglist[0];
 				var arg2 = arglist[1];
 				var mentionuser = msg.mentions.users.first();
-				member = msg.guild.members.find(function(el) {
-					return el.id == mentionuser.id;
-				});
-				var days;
-				if (arg2 && !isNaN(arg2)) {
-					days = arg2;
-					console.log(days)
-					member.ban(days);
+				if (mentionuser) {
+					var member = msg.guild.members.find(function(el) {
+						return el.id == mentionuser.id;
+					});
+					var days;
+					if (arg2 && !isNaN(arg2)) {
+						days = arg2;
+						console.log(days)
+						member.ban(days);
+					}
+					else {
+						member.ban();
+					}
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle(mentionuser.username + " Banned!");
+					msg.channel.sendEmbed(embed);
 				}
 				else {
-					member.ban();
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Please give a valid user!");
+					msg.channel.sendEmbed(embed);
 				}
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle(mentionuser.username + " Banned!");
-				msg.channel.sendEmbed(embed);
-			}
+				}
+
 			else {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0xFF0000);
@@ -660,13 +833,23 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Bans a user *(ADMIN COMMAND)* \n Usage: " + prefix + "ban @user#1234 <how many days worth of messages to delete *(optional)*>"
+		"bio": "Bans a user *(ADMIN COMMAND)*",
+		"syntax": "ban @user#1234 <how many days worth of messages to delete *(optional)*>"
 	},
 	"purge": {
 		"response": function(bot, msg, args) {
 			if(isAdminRole(msg.member) == true) {
 				if (!isNaN(args)) {
-					msg.channel.bulkDelete(args);
+					var argamounttodelete = parseInt(args);
+					var recentmessages = msg.channel.messages;
+					var amounttodelete = (recentmessages.length < argamounttodelete) ? recentmessages.length : argamounttodelete;
+					msg.channel.bulkDelete(amounttodelete + 1);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Please give a valid amount of messages to delete!");
+					msg.channel.sendEmbed(embed);
 				}
 			}
 			else {
@@ -676,17 +859,26 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Deletes a large amount of messages *(ADMIN COMMAND)* \n Usage: " + prefix + "purge <amount>"
+		"bio": "Deletes a large amount of messages with a maximum of 200 *(ADMIN COMMAND)*",
+		"syntax": "purge <amount of messages to delete>"
 	},
 	"prefix": {
 		"response": function(bot, msg, args) {
 			if(isAdminRole(msg.member) == true) {
 				if (args) {
-					storage.setItemSync(msg.guild.id + "_prefix", args);
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Prefix set to " + args);
-					msg.channel.sendEmbed(embed);
+					if (args < 20) {
+						storage.setItemSync(msg.guild.id + "_prefix", args);
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Prefix set to `" + args + "`");
+						msg.channel.sendEmbed(embed);
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Please set a prefix shorter than 20 characters!");
+						msg.channel.sendEmbed(embed);
+					}
 				}
 				else {
 					storage.removeItemSync(msg.guild.id + "_prefix");
@@ -703,89 +895,43 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Sets a new prefix for your server *(ADMIN COMMAND)* \n Usage: " + prefix + "prefix <new prefix>"
+		"bio": "Sets a new prefix for your server *(ADMIN COMMAND)*",
+		"syntax": "prefix <new prefix>"
 	},
 	"embed": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0x7B68EE);
-			embed.setAuthor(msg.author.username, msg.author.avatarURL);
-			embed.setDescription(args);
-			msg.channel.sendEmbed(embed);
-		},
-		"bio": "Puts text in a nice embed \n Usage: " + prefix + "embed <text>"
-	}/*,
-	"softban": {
-		"response": function(bot, msg, args) {
-			if(isAdminRole(msg.member) == true) {
-				var arglist = parseArguments(args, 3);
-				var arg1 = arglist[0];
-				var arg2 = arglist[1];
-				var arg3 = arglist[2];
-				console.log(arg1 + '--' + arg2 + '--' + arg3)
-				var user = msg.mentions.users.first();
-				var guilduser = msg.guild.members.find(function (el) {
-				return el.id == user.id;
-				});
-				var reinvite = arg2.toLowerCase() == "true";
-				console.log(reinvite);
-				guilduser.ban(user.id)
-				.then(function (bannedUser) {
-				   console.log('Success =======', bannedUser);
-				})
-				.catch(function (reason) {
-				   console.log('Failure =======', reason);
-				});
-				if (arg1 && isNaN(arg1) == false) {
-				if (guilduser) {
-				guilduser.ban(user.id)
-				.then(function (bannedUser) {
-				//bannedUser.sendMessage("You have been banned from " + msg.guild.name);
-				setTimeout(function () {
-				msg.guild.unban(bannedUser.id)
-				       .then(function (unbannedUser) {
-				           if (reinvite == true) {
-				               msg.guild.defaultChannel.createInvite()
-				               .then((invite) => {
-				                   var url = invite.url;
-				                   console.log(url);
-				                   unbannedUser.sendMessage(url);
-				               })
-				               .catch ((reason) => {
-				                   //console.log(reason);
-				               });
-				           }
-				       });
-				}, (arg1 * 1000));
-			});
-					}
-					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid user!");
-						msg.channel.sendEmbed(embed);
-					}
+			if (args) {
+				if (args.length < 200) {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x7B68EE);
+					embed.setAuthor(msg.author.username, msg.author.avatarURL);
+					embed.setDescription(args);
+					msg.channel.sendEmbed(embed);
 				}
 				else {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a vaild time!");
+					embed.setTitle("Uh Oh! How do I embed something I can't even say!?!");
 					msg.channel.sendEmbed(embed);
 				}
-
 			}
 			else {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				embed.setTitle("Uh Oh! Please give something to embed!");
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Temporarily bans a user *(ADMIN COMMAND)* \n Usage: " + prefix + "softban <duration of ban in seconds> <whether to resend an invite link when ban is complete - true|false> @user#1234"
-	}*/
+		"bio": "Puts text in a nice embed",
+		"syntax": "embed <text>"
+	}
 }
 
 function spamWordEvent() {
+	bot.once("spamcanceled", function () {
+		storage.setItemSync(msg.guild.id + "_eventactive", false);
+		return;
+	});
 	bot.on("message", msg => {
 		if (msg.content.toLowerCase() == storage.getItemSync(msg.guild.id + "_spamword")) {
 			var value = storage.getItemSync(msg.guild.id + "_spamcurrentcounter");
@@ -830,8 +976,8 @@ function getHelpDescription () {
 	var descarray = [];
 	for (var c in commands) {
 		if (commands.hasOwnProperty(c)) {
-			desc += "***"+ prefix + c + "*** - " + commands[c].bio + "\n\n";
-			descarray.push("***"+ prefix + c + "*** - " + commands[c].bio + "\n\n");
+			desc += "***"+ prefix + c + "*** - " + commands[c].bio + "\n";
+			descarray.push("***"+ prefix + c + "*** - " + commands[c].bio + "\n");
 		}
 	}
 	return descarray;
@@ -845,18 +991,20 @@ bot.on("ready", () => {
 
 bot.on("guildMemberAdd", (member) => {
 	//autorole
-	var autoroleid = storage.getItemSync(member.guild.id + "_autorole");
-	if (autoroleid) {
-		try {
-			member.addRole(autoroleid).then(
-				function (u) {
-				},
-				function (reason) {
-				}
-			);
-		}
-		catch (e) {
-		}
+	var rolearray = storage.getItemSync(member.guild.id + "_autorole");
+	if (rolearray) {
+		rolearray.forEach(function (el) {
+			try {
+				member.addRole(el).then(
+					function (u) {
+					},
+					function (reason) {
+					}
+				);
+			}
+			catch (e) {
+			}
+		});
 	}
 	//welcome message
 	var welcomemessage = storage.getItemSync(member.guild.id + "_welcomemessage");
@@ -884,7 +1032,9 @@ bot.on("guildCreate", (guild) => {
 
 //command reply code
 bot.on("message", msg => {
-
+	if(msg.guild) {
+		var thistriviamodule = triviamoduleobjects[msg.guild.id + "_triviamodule"];
+	}
 	// score
 	if (msg.guild && msg.guild.available) {
 		if (!msg.author.bot) {
@@ -930,8 +1080,8 @@ bot.on("message", msg => {
 			msg.channel.sendEmbed(embed);
 		}
 	}
-	else if (msg.content && msg.content.length > 0 && triviamodule.isWaiting()) {
-		triviamodule.checkAnswer(msg, storage);
+	else if (msg.content && msg.content.length > 0 && thistriviamodule && thistriviamodule.isWaiting()) {
+		thistriviamodule.checkAnswer(msg, storage);
 	}
 });
 
