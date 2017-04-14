@@ -7,6 +7,7 @@ const token = require('./token.js');
 
 var prefix = "()";
 var refereeserverlink = "https://discord.gg/CncfjgM";
+var refereeinvitelink = "https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&permissions=2146696319";
 var currentspammedwords;
 var spamword;
 var spamgoal;
@@ -48,6 +49,7 @@ var commands = {
 					embed3.addField(msg.guild.name + "'s Custom Prefix", "`" + serverprefix + "`", false);
 				}
 				embed3.addField("Join the Official referee server", refereeserverlink, false);
+				embed3.addField("Invite referee to your server", refereeinvitelink, false);
 				msg.author.sendEmbed(embed3);
 				var helparray = getHelpDescription();
 				for (var i = 0; i < helparray.length; i += 15) {
@@ -1023,6 +1025,13 @@ var commands = {
 		},
 		"bio": "Puts text in a nice embed",
 		"syntax": "embed <text>"
+	},
+	"invite": {
+		"response": function(bot, msg, args) {
+			msg.channel.sendMessage(refereeinvitelink);
+		},
+		"bio": "Gives an invite to referee",
+		"syntax": "invite"
 	}
 }
 
