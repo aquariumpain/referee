@@ -25,14 +25,15 @@ var utils = require('./utils.js');
 				{ question: 'The tallest mountain in the Solar System is on which planet?', answer: 'mars', altanswer: ''},
 				{ question: 'What is a group of lions called?', answer: 'a pride', altanswer: 'pride'},
 				{ question: 'What is "...as hard as dragon scale and as light as a feather" in The Lord of the Rings?', answer : 'mithril', altanswer : ''},
+				{ question: 'The four parts of an EGOT are an Emmy, Grammy, Oscar, and ...', answer: 'tony', altanswer: 'a tony'},
 				//{ question: '', answer: '', altanswer: ''},
 			];
 			var completedquestions = [];
 			var triviachannel = null;
 			var trivialeaderboard = [];
+			var timeout;
 
-
-		this.askQuestion = function() {
+		this.askQuestion = function(Discord) {
 			var question;
 			do {
 				question = utils.getRandomIntInclusive(0, (questions.length-1));
@@ -40,9 +41,18 @@ var utils = require('./utils.js');
 			while (completedquestions.includes(question));
 			triviachannel.sendMessage(questions[question].question);
 			completedquestions.push(question);
+			var outsidethis = this;
+			console.log(question);
+			timeout  = setTimeout(function() {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0x00FFFF);
+				embed.setTitle("No one got it! The answer was " + questions[question].answer + "! Next Question!");
+				triviachannel.sendEmbed(embed);
+				outsidethis.askQuestion(Discord);
+			}, 20*1000);
 		};
 
-		this.checkAnswer = function(msg, storage) {
+		this.checkAnswer = function(msg, storage, Discord) {
 			if (msg.channel.id == triviachannel.id) {
 				var question = completedquestions[completedquestions.length-1];
 				var result = msg.content.toLowerCase() == questions[question].answer || msg.content.toLowerCase() == questions[question].altanswer;
@@ -60,13 +70,13 @@ var utils = require('./utils.js');
 						});
 						point.score++;
 					}
-					if (completedquestions.length >= questions.length) {
-						triviachannel.sendMessage("Trivia Complete! This channel will now be deleted.");
+					if (completedquestions.length >= /*change this number to change amount of questions asked in trivia*/ questions.length) {
 						this.displayLeaderboard(msg.guild);
 						this.resetTrivia(storage, msg, triviachannel);
 					}
 					else {
-						this.askQuestion();
+						clearTimeout(timeout);
+						this.askQuestion(Discord);
 					}
 				}
 			}
@@ -101,6 +111,7 @@ var utils = require('./utils.js');
 		this.resetTrivia = function(storage, msg, tchannel) {
 			completedquestions.length = 0;
 			storage.setItemSync(msg.guild.id + "_eventactive", false);
+			tchannel.sendMessage("Trivia Complete! This channel will now be deleted.");
 			if (tchannel) {
 				setTimeout(function() {
 					tchannel.delete();
@@ -115,7 +126,7 @@ var utils = require('./utils.js');
 				embed.setColor(0x00FFFF);
 				embed.setTitle("Trivia Event Started");
 				triviachannel.sendEmbed(embed);
-				this.askQuestion();
+				this.askQuestion(Discord);
 			};
 
 		};

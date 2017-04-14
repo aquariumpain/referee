@@ -544,23 +544,7 @@ var commands = {
 					embed.setTitle("Uh Oh! Please give valid arguments!");
 					msg.channel.sendEmbed(embed);
 				}
-				/*
-				var roletoadd = msg.guild.roles.find(function(el) {
-					return el.name == args;
-				});
-				var availableroles = [];
-				var currentavailableroles = storage.getItemSync(msg.guild.id + "_availablegetroles");
-				if (!currentavailableroles) {
-					currentavailableroles = [];
-				}
-				availableroles = currentavailableroles;
-				availableroles.push({ roleid: roletoadd.id, rolename: roletoadd.name, role: roletoadd});
-				storage.setItemSync(msg.guild.id + "_availablegetroles", availableroles);
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle("Role " + roletoadd.name + " added as an available role for the getrole command!");
-				msg.channel.sendEmbed(embed);
-			}*/
+			}
 			else {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0xFF0000);
@@ -579,7 +563,7 @@ var commands = {
 			if (roletoadd) {
 				var availableroles = storage.getItemSync(msg.guild.id + "_availablegetroles");
 				var gettable = availableroles.find(function(el) {
-					return el.roleid == roletoadd.id;
+					return el == roletoadd.id;
 				});
 				if (gettable) {
 					try {
@@ -1195,7 +1179,7 @@ bot.on("message", msg => {
 		}
 	}
 	else if (msg.content && msg.content.length > 0 && thistriviamodule && thistriviamodule.isWaiting()) {
-		thistriviamodule.checkAnswer(msg, storage);
+		thistriviamodule.checkAnswer(msg, storage, Discord);
 	}
 });
 
