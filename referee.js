@@ -681,6 +681,7 @@ var commands = {
 						var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
 						var rolelist = "";
 						if (rolearray) {
+							console.log(rolearray);
 							rolearray.forEach(function (el) {
 								var role = msg.guild.roles.find(function(ele) {
 									return ele.id == el;
@@ -775,7 +776,7 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Sets an welcome or leave message. Leaving the message blank will clear your set message. *(ADMIN COMMAND)*",
+		"bio": "Sets an welcome or leave message. Leaving the message blank will clear your set message. Including {Mention} in the message mentions the user that joined. *(ADMIN COMMAND)*",
 		"syntax": "announce <welcome|leave> <message>"
 	},
 	"serverinfo": {
@@ -1109,7 +1110,8 @@ bot.on("guildMemberAdd", (member) => {
 	if (welcomemessage != "") {
 		var welcomechannel = member.guild.channels.get(storage.getItemSync(member.guild.id + "_welcomechannel"));
 		if (welcomechannel) {
-			welcomechannel.sendMessage(welcomemessage);
+			var newwelcome = welcomemessage.replace("{Mention}", "<@" + member.id + ">");
+			welcomechannel.sendMessage(newwelcome);
 		}
 	}
 });
