@@ -1070,7 +1070,8 @@ function isAdminRole(messageauthor) {
 		if (adminrole.id == storage.getItemSync(messageauthor.guild.id + "_adminroleid")) {
 			return true;
 		}
-	 else if (messageauthor.id == messageauthor.guild.ownerID) {
+	}
+	else if (messageauthor.id == messageauthor.guild.ownerID) {
 			return true;
 	} else {
 			return false;
