@@ -428,9 +428,123 @@ var commands = {
 		"bio": "Plays slots",
 		"syntax": "slots <bet>"
 	},
-	"addgetrole": {
+	"getrolesettings": {
 		"response": function(bot, msg, args) {
 			if(isAdminRole(msg.member) == true) {
+				if (args) {
+					arglist = parseArguments(args, 2);
+					arg1 = arglist[0];
+					arg2 = arglist[1];
+					if (arg1 == "add") {
+						var roletoadd = msg.guild.roles.find(function(el) {
+							return el.name == arg2;
+						});
+						if (roletoadd) {
+							var rolearray = storage.getItemSync(msg.guild.id + "_availablegetroles");
+							if (!rolearray) {
+								rolearray = [];
+							}
+							rolearray.push(roletoadd.id);
+							storage.setItemSync(msg.guild.id + "_availablegetroles", rolearray);
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FF00);
+							embed.setTitle("Role " + roletoadd.name + " added as an available role for the getrole command!");
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "remove") {
+						var roletoremove = msg.guild.roles.find(function(el) {
+							return el.name == arg2;
+						});
+						if (roletoremove) {
+							var rolearray = storage.getItemSync(msg.guild.id + "_availablegetroles");
+							if (rolearray) {
+								var index = rolearray.indexOf(roletoremove.id);
+								if (index && index > -1) {
+	    						rolearray.splice(index, 1);
+									storage.setItemSync(msg.guild.id + "_availablegetroles", rolearray);
+								}
+								else {
+									var embed = new Discord.RichEmbed();
+									embed.setColor(0xFF0000);
+									embed.setTitle("Uh Oh! This role is not set as an getrole!");
+									msg.channel.sendEmbed(embed);
+								}
+							}
+							else {
+								var embed = new Discord.RichEmbed();
+								embed.setColor(0xFF0000);
+								embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+								msg.channel.sendEmbed(embed);
+							}
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "clear") {
+						var rolearray = storage.getItemSync(msg.guild.id + "_availablegetroles");
+						if (rolearray) {
+							storage.removeItemSync(msg.guild.id + "_availablegetroles");
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FF00);
+							embed.setTitle("Getroles Reset!");
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else if (arg1 == "list") {
+						var rolearray = storage.getItemSync(msg.guild.id + "_availablegetroles");
+						var rolelist = "";
+						if (rolearray) {
+							rolearray.forEach(function (el) {
+								var role = msg.guild.roles.find(function(ele) {
+									return ele.id == el;
+								});
+								rolelist += role.name + " | ";
+							});
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FFFF);
+							embed.setTitle("All GetRole Roles for " + msg.guild.name);
+							embed.setDescription(rolelist);
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+							msg.channel.sendEmbed(embed);
+						}
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list getroles!");
+						msg.channel.sendEmbed(embed);
+					}
+
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Please give valid arguments!");
+					msg.channel.sendEmbed(embed);
+				}
+				/*
 				var roletoadd = msg.guild.roles.find(function(el) {
 					return el.name == args;
 				});
@@ -446,7 +560,7 @@ var commands = {
 				embed.setColor(0x00FF00);
 				embed.setTitle("Role " + roletoadd.name + " added as an available role for the getrole command!");
 				msg.channel.sendEmbed(embed);
-			}
+			}*/
 			else {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0xFF0000);
