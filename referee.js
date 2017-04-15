@@ -1050,31 +1050,39 @@ var commands = {
 	},
 	"channeltoggle": {
 		"response": function(bot, msg, args) {
-			var channelarray = storage.getItemSync(msg.guild.id + "_disabledchannels");
-			if (!channelarray) {
-				channelarray = [];
-			}
-			if (channelarray.includes(msg.channel.id)) {
-				var index = channelarray.indexOf(msg.channel.id);
-				if (index && index > -1) {
-					channelarray.splice(index, 1);
-					storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
+			if(isAdminRole(msg.member) == true) {
+				var channelarray = storage.getItemSync(msg.guild.id + "_disabledchannels");
+				if (!channelarray) {
+					channelarray = [];
+				}
+				if (channelarray.includes(msg.channel.id)) {
+					var index = channelarray.indexOf(msg.channel.id);
+					if (index && index > -1) {
+						channelarray.splice(index, 1);
+						storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Commands are now enabled for this channel!");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+				else {
+					channelarray.push(msg.channel.id);
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FFFF);
-					embed.setTitle("Commands are now enabled for this channel!");
+					embed.setTitle("Commands are now disabled for this channel!");
 					msg.channel.sendEmbed(embed);
+					storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
 				}
 			}
 			else {
-				channelarray.push(msg.channel.id);
 				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FFFF);
-				embed.setTitle("Commands are now disabled for this channel!");
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
 				msg.channel.sendEmbed(embed);
-				storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
 			}
 		},
-		"bio": "Toggles commands in that channel",
+		"bio": "Toggles commands in that channel *(ADMIN COMMAND)*",
 		"syntax": "channeltoggle"
 	}
 }
