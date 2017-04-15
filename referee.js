@@ -944,7 +944,7 @@ var commands = {
 					var argamounttodelete = parseInt(args);
 					var recentmessages = msg.channel.messages;
 					var amounttodelete = (recentmessages.length < argamounttodelete) ? recentmessages.length : argamounttodelete;
-					msg.channel.bulkDelete(amounttodelete + 1);
+					msg.channel.bulkDelete(amounttodelete + 1).catch(console.error);
 				}
 				else {
 					var embed = new Discord.RichEmbed();
@@ -960,7 +960,7 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Deletes a large amount of messages with a maximum of 200 *(ADMIN COMMAND)*",
+		"bio": "Deletes a large amount of messages with a maximum of 100 *(ADMIN COMMAND)*",
 		"syntax": "purge <amount of messages to delete>"
 	},
 	"prefix": {
