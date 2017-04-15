@@ -17,7 +17,8 @@ var commands = {
 		"response": function(bot, msg) {
 			var embed = new Discord.RichEmbed();
 			embed.setColor(0x00FF00);
-			embed.setTitle("Pong! Your ping is " + bot.ping + "ms")
+			embed.setTitle("Pong! Your ping is " + bot.ping + "ms");
+			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Returns average ping",
@@ -50,6 +51,7 @@ var commands = {
 				}
 				embed3.addField("Join the Official referee server", refereeserverlink, false);
 				embed3.addField("Invite referee to your server", refereeinvitelink, false);
+				embed3.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.author.sendEmbed(embed3);
 				var helparray = getHelpDescription();
 				for (var i = 0; i < helparray.length; i += 15) {
@@ -59,11 +61,13 @@ var commands = {
 					embed.setColor(0x00FFFF);
 					embed.setTitle("Available referee Commands");
 					embed.setDescription(joined);
+					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.author.sendEmbed(embed);
 				}
 				var embed2 = new Discord.RichEmbed();
 				embed2.setColor(0x00FFFF);
 				embed2.setTitle("A list of commands has been sent to your DMs");
+				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed2);
 			}
 			else {
@@ -76,6 +80,7 @@ var commands = {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FFFF);
 					embed.addField(prefix + args + " - " + command.bio, "Usage: " + serverprefix + command.syntax, false);
+					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -209,6 +214,7 @@ var commands = {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FF00);
 					embed.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10");
+					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -234,6 +240,7 @@ var commands = {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0x00FF00);
 				embed.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!");
+				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
 			else {
@@ -350,6 +357,7 @@ var commands = {
 			else {
 				embed.setColor(0x00FF00);
 				embed.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:");
+				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
 		},
@@ -372,6 +380,7 @@ var commands = {
 			var embed = new Discord.RichEmbed();
 			embed.setColor(0xFFFFFF);
 			embed.setTitle(":game_die: " + utils.getRandomIntInclusive(1, 6) + " :game_die:");
+			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Rolls dice",
@@ -422,6 +431,7 @@ var commands = {
 						});
 				 	}
 					embed.addField("Result", winorloss, true);
+					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					embed.setAuthor(msg.author.username, msg.author.avatarURL);
 				}
 			}
@@ -793,6 +803,7 @@ var commands = {
 			embed.addField("Created", msg.guild.createdAt, true);
 			embed.addField("ID", msg.guild.id, true);
 			embed.setAuthor(msg.author.username, msg.author.avatarURL);
+			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Gives basic server info",
@@ -832,6 +843,7 @@ var commands = {
 				embed.setColor(0x0000FF);
 				embed.setTitle(member.username + "'s avatar. Here's a link: " + member.avatarURL);
 				embed.setImage(member.avatarURL);
+				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 				}
 			}
@@ -871,6 +883,7 @@ var commands = {
 			embed.addField("Joined", member.createdAt, true);
 			embed.setThumbnail(member.avatarURL);
 			embed.setAuthor(msg.author.username, msg.author.avatarURL);
+			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 			}
 		},
@@ -889,6 +902,7 @@ var commands = {
 			embed.addField("Total Members", bot.users.size, true);
 			embed.addField("Total Channels", bot.channels.size, true);
 			embed.addField("Library", "discord.js", true);
+			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Gives basic bot info",
@@ -1007,6 +1021,7 @@ var commands = {
 					embed.setColor(0x7B68EE);
 					embed.setAuthor(msg.author.username, msg.author.avatarURL);
 					embed.setDescription(args);
+					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -1092,7 +1107,8 @@ function getHelpDescription () {
 
 
 bot.on("ready", () => {
-	bot.user.setGame('with your mind | ' + prefix + 'help');
+	console.log("Shard " + bot.shard.id + " Ready!");
+	bot.user.setGame('with fire | ' + prefix + 'help');
 	storage.init();
 });
 
