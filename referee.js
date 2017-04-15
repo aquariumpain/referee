@@ -1047,6 +1047,35 @@ var commands = {
 		},
 		"bio": "Gives an invite to referee",
 		"syntax": "invite"
+	},
+	"channeltoggle": {
+		"response": function(bot, msg, args) {
+			var channelarray = storage.getItemSync(msg.guild.id + "_disabledchannels");
+			if (!channelarray) {
+				channelarray = [];
+			}
+			if (channelarray.includes(msg.channel.id)) {
+				var index = channelarray.indexOf(msg.channel.id);
+				if (index && index > -1) {
+					channelarray.splice(index, 1);
+					storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Commands are now enabled for this channel!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				channelarray.push(msg.channel.id);
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0x00FFFF);
+				embed.setTitle("Commands are now disabled for this channel!");
+				msg.channel.sendEmbed(embed);
+				storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
+			}
+		},
+		"bio": "Toggles commands in that channel",
+		"syntax": "channeltoggle"
 	}
 }
 
@@ -1184,17 +1213,23 @@ bot.on("message", msg => {
 			var ind = commandWithArgs.indexOf(" ");
 			var command = (ind >= 0) ? commandWithArgs.substring(0, ind) : commandWithArgs;
 			var args = (ind >= 0) ? commandWithArgs.substring(ind + 1) : "";
-
-			if (commands.hasOwnProperty(command)) {
-				var commandreply = commands[command].response;
-				commandreply(bot, msg, args);
+			var channelarray = storage.getItemSync(msg.guild.id + "_disabledchannels");
+			if (!channelarray) {
+				channelarray = [];
 			}
-			else if (command) {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("What's that? Unknown Command!");
-				embed.setDescription("Do !help to get a list of available commands sent to your DMs.");
-				msg.channel.sendEmbed(embed);
+
+			if (!channelarray.includes(msg.channel.id) || command == "channeltoggle") {
+				if (commands.hasOwnProperty(command)) {
+					var commandreply = commands[command].response;
+					commandreply(bot, msg, args);
+				}
+				else if (command) {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("What's that? Unknown Command!");
+					embed.setDescription("Do " + prefix + "help to get a list of available commands sent to your DMs.");
+					msg.channel.sendEmbed(embed);
+				}
 			}
 		}
 		else {
