@@ -5,6 +5,9 @@ const trivia = require('./trivia.js');
 const utils = require('./utils.js');
 const token = require('./token.js');
 const votemodule = require('./vote.js');
+const cleverbotio = require('cleverbot.io');
+const cleverbot = new cleverbotio("HPQImwt7XorKOzyu", "eTJuxJjdy0NptJ9xV2VfRo7Pi2i3Kqj9");
+cleverbot.setNick("cleverbotreferee");
 
 var prefix = "()";
 var refereeserverlink = "https://discord.gg/CncfjgM";
@@ -1203,6 +1206,13 @@ var commands = {
 						}
 						msg.channel.sendMessage(resultmessage + "```");
 						delete voteobjects[msg.guild.id + "_votemodule"];
+						for (var i = 0; i < votedusers.length; i++) {
+							var el = votedusers[i];
+							if (el.startsWith(msg.guild.id)) {
+	    					votedusers.splice(i, 1);
+								i--;
+							}
+						}
 					}
 				}
 				else {
@@ -1213,14 +1223,14 @@ var commands = {
 				}
 			}
 			else if (arg1 && !isNaN(arg1)) {
-				if (!votedusers.includes(msg.author.id)) {
+				if (!votedusers.includes(msg.guild.id + "_" + msg.author.id)) {
 					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
 					var results = thisvote.getVotes();
 					results.shift();
 					if (arg1 <= (results.length-1)) {
 						var vote = parseInt(arg1);
 						thisvote.addVote(vote);
-						votedusers.push(msg.author.id);
+						votedusers.push(msg.guild.id + "_" + msg.author.id);
 						var results2 = thisvote.getVotes();
 						var topic2 = results2.shift();
 						var resultmessage = "**" + topic2 + "** \n```";
@@ -1253,6 +1263,38 @@ var commands = {
 		"bio": "Voting",
 		"syntax": "vote <start|check|end> [vote topic; option 1; option 2; option 3; ...]"
 	},
+	"cleverbottoggle": {
+		"response": function(bot, msg, args) {
+			if(isAdminRole(msg.member) == true) {
+				var cleverbotdisabledcurrent = storage.getItemSync(msg.guild.id + "_cleverbotdisabled");
+				if (!cleverbotstatuscurrent) {
+					cleverbotdisabledcurrent = false;
+				}
+				if (cleverbotdisabledcurrent = false) {
+					storage.setItemSync(msg.guild.id + "_cleverbotdisabled", true);
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Cleverbot is now disabled for this server!");
+					msg.channel.sendEmbed(embed);
+				}
+				else {
+					storage.removeItemSync(msg.guild.id + "_cleverbotdisabled");
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Cleverbot is now enabled for this server!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Toggles clever in that server *(ADMIN COMMAND)*",
+		"syntax": "cleverbottoggle"
+	}
 }
 
 function spamWordEvent() {
@@ -1315,6 +1357,11 @@ bot.on("ready", () => {
 	//console.log("Shard " + bot.shard.id + " Ready!");
 	bot.user.setGame('with fire | ' + prefix + 'help');
 	storage.init();
+	cleverbot.create(function (err, cleverbotreferee) {
+		if (err) {
+			console.log("Cleverbot Start Error: " + err);
+		}
+	});
 });
 
 bot.on("guildMemberAdd", (member) => {
@@ -1413,6 +1460,22 @@ bot.on("message", msg => {
 			embed.setColor(0xFF0000);
 			embed.setTitle("Uh Oh! Commands don't work in DMs or Group DMs!");
 			msg.channel.sendEmbed(embed);
+		}
+	}
+	else if(msg.content.startsWith("<@" + bot.user.id + ">") || msg.content.startsWith("<@!" + bot.user.id + ">")) {
+		var channelarray = storage.getItemSync(msg.guild.id + "_disabledchannels");
+		if (!channelarray) {
+			channelarray = [];
+		}
+		var cleverbotdisabled = storage.getItemSync(msg.guild.id + "_cleverbotdisabled");
+		if (!cleverbotdisabled) {
+			cleverbotdisabled = false;
+		}
+		if (!channelarray.includes(msg.channel.id) && cleverbotdisabled == false) {
+			var message = msg.content.replace("<@" + bot.user.id + ">", "");
+			cleverbot.ask(message, function (err, response) {
+  			msg.channel.sendMessage(":speech_balloon: " + response + " :speech_balloon:");
+			});
 		}
 	}
 	else if (msg.content && msg.content.length > 0 && thistriviamodule && thistriviamodule.isWaiting()) {
