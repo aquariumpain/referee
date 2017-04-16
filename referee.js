@@ -4,6 +4,7 @@ const bot = new Discord.Client();
 const trivia = require('./trivia.js');
 const utils = require('./utils.js');
 const token = require('./token.js');
+const votemodule = require('./vote.js');
 
 var prefix = "()";
 var refereeserverlink = "https://discord.gg/CncfjgM";
@@ -12,13 +13,15 @@ var currentspammedwords;
 var spamword;
 var spamgoal;
 var triviamoduleobjects = {};
+var voteobjects = {};
+var votedusers = [];
 var commands = {
 	"ping": {
 		"response": function(bot, msg) {
 			var embed = new Discord.RichEmbed();
 			embed.setColor(0x00FF00);
 			embed.setTitle("Pong! Your ping is " + bot.ping + "ms");
-			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Returns average ping",
@@ -51,7 +54,7 @@ var commands = {
 				}
 				embed3.addField("Join the Official referee server", refereeserverlink, false);
 				embed3.addField("Invite referee to your server", refereeinvitelink, false);
-				embed3.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				//embed3.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.author.sendEmbed(embed3);
 				var helparray = getHelpDescription();
 				for (var i = 0; i < helparray.length; i += 15) {
@@ -61,13 +64,13 @@ var commands = {
 					embed.setColor(0x00FFFF);
 					embed.setTitle("Available referee Commands");
 					embed.setDescription(joined);
-					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.author.sendEmbed(embed);
 				}
 				var embed2 = new Discord.RichEmbed();
 				embed2.setColor(0x00FFFF);
 				embed2.setTitle("A list of commands has been sent to your DMs");
-				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed2);
 			}
 			else {
@@ -80,7 +83,7 @@ var commands = {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FFFF);
 					embed.addField(prefix + args + " - " + command.bio, "Usage: " + serverprefix + command.syntax, false);
-					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -135,10 +138,10 @@ var commands = {
 	},
 	"event": {
 		"response": function(bot, msg, args) {
-			arglist = parseArguments(args, 3);
-			eventtype = arglist[0];
-			arg1 = arglist[1];
-			arg2 = arglist[2];
+			var arglist = parseArguments(args, 3);
+			var eventtype = arglist[0];
+			var arg1 = arglist[1];
+			var arg2 = arglist[2];
 			if(isAdminRole(msg.member) == true) {
 				if (!storage.getItemSync(msg.guild.id + "_eventactive")) {
 					if (eventtype.toLowerCase() == "trivia") {
@@ -214,7 +217,7 @@ var commands = {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0x00FF00);
 					embed.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10");
-					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -240,7 +243,7 @@ var commands = {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0x00FF00);
 				embed.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!");
-				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
 			else {
@@ -357,7 +360,7 @@ var commands = {
 			else {
 				embed.setColor(0x00FF00);
 				embed.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:");
-				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
 		},
@@ -380,7 +383,7 @@ var commands = {
 			var embed = new Discord.RichEmbed();
 			embed.setColor(0xFFFFFF);
 			embed.setTitle(":game_die: " + utils.getRandomIntInclusive(1, 6) + " :game_die:");
-			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Rolls dice",
@@ -431,7 +434,7 @@ var commands = {
 						});
 				 	}
 					embed.addField("Result", winorloss, true);
-					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					embed.setAuthor(msg.author.username, msg.author.avatarURL);
 				}
 			}
@@ -803,7 +806,7 @@ var commands = {
 			embed.addField("Created", msg.guild.createdAt, true);
 			embed.addField("ID", msg.guild.id, true);
 			embed.setAuthor(msg.author.username, msg.author.avatarURL);
-			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Gives basic server info",
@@ -843,7 +846,7 @@ var commands = {
 				embed.setColor(0x0000FF);
 				embed.setTitle(member.username + "'s avatar. Here's a link: " + member.avatarURL);
 				embed.setImage(member.avatarURL);
-				embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 				}
 			}
@@ -883,7 +886,7 @@ var commands = {
 			embed.addField("Joined", member.createdAt, true);
 			embed.setThumbnail(member.avatarURL);
 			embed.setAuthor(msg.author.username, msg.author.avatarURL);
-			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 			}
 		},
@@ -902,7 +905,7 @@ var commands = {
 			embed.addField("Total Members", bot.users.size, true);
 			embed.addField("Total Channels", bot.channels.size, true);
 			embed.addField("Library", "discord.js", true);
-			embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Gives basic bot info",
@@ -1021,7 +1024,7 @@ var commands = {
 					embed.setColor(0x7B68EE);
 					embed.setAuthor(msg.author.username, msg.author.avatarURL);
 					embed.setDescription(args);
-					embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 					msg.channel.sendEmbed(embed);
 				}
 				else {
@@ -1084,7 +1087,172 @@ var commands = {
 		},
 		"bio": "Toggles commands in that channel *(ADMIN COMMAND)*",
 		"syntax": "channeltoggle"
-	}
+	},
+	"coin": {
+		"response": function(bot, msg, args) {
+			var hort = utils.getRandomIntInclusive(1, 2) == 1 ? "Heads" : "Tails";
+			var embed = new Discord.RichEmbed();
+			embed.setColor(0xFFFFFF);
+			embed.setTitle(hort);
+			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.sendEmbed(embed);
+		},
+		"bio": "Flips coin",
+		"syntax": "coin"
+	},
+	"choose": {
+		"response": function(bot, msg, args) {
+			var arglist = args.split(",");
+			if (arglist) {
+				var number = utils.getRandomIntInclusive(0, (arglist.length-1));
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFFFFFF);
+				embed.setTitle(arglist[number]);
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.sendEmbed(embed);
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Please give something to choose!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Chooses between options separated by a comma (`,`)",
+		"syntax": "choose option 1, option 2, option 3, ..."
+	},
+	"8ball": {
+		"response": function(bot, msg, args) {
+			if (args) {
+				var answers = ["It is certain", "It is decidedly so", "Without a doubt", "Yes definitely", "You may rely on it", "As I see it, yes",
+				"Most likely", "Outlook good", "Yes", "Signs point to yes", "Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now",
+				"Concentrate and ask again", "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful"];
+				var number = utils.getRandomIntInclusive(0, (answers.length-1));
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFFFFFF);
+				embed.setTitle("Hmm... \n" + answers[number]);
+				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.sendEmbed(embed);
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Please ask the 8ball a question!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Ask the 8ball a question",
+		"syntax": "8ball"
+	},
+	"vote": {
+		"response": function(bot, msg, args) {
+			var arglist = parseArguments(args, 2);
+			var arg1 = arglist[0];
+			var options = arglist[1];
+			if (arg1.toLowerCase() == "start") {
+				if (storage.getItemSync(msg.guild.id + "_voteactive") == false) {
+					var optionarray = options.split(';');
+					if (options && optionarray.length > 0) {
+						var topic = optionarray.shift();
+						storage.setItemSync(msg.guild.id + "_voteactive", true);
+						var thisvote = new votemodule.create();
+						voteobjects[msg.guild.id + "_votemodule"] = thisvote;
+						thisvote.startVote(topic, optionarray);
+						var results = thisvote.getVotes();
+						results.shift();
+						var resultmessage = "**" + topic + "** \n```";
+						for (var i = 0; i <= (results.length-1); i++) {
+							resultmessage += "[" + (i+1) + "] : " + results[i].choice + " - " + results[i].votes + " votes \n"
+						}
+						msg.channel.sendMessage(resultmessage + "```");
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Please give valid options!");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! There is already a vote in progress!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else if (arg1.toLowerCase() == "check") {
+				var thisvote = voteobjects[msg.guild.id + "_votemodule"];
+				var results = thisvote.getVotes();
+				var topic = results.shift();
+				var resultmessage = "**" + topic + "** \n```";
+				for (var i = 0; i <= (results.length-1); i++) {
+					resultmessage += "Option " + (i+1) + ": " + results[i].choice + " - " + results[i].votes + " votes \n"
+				}
+				msg.channel.sendMessage(resultmessage + "```");
+			}
+			else if (arg1.toLowerCase() == "end") {
+				if (storage.getItemSync(msg.guild.id + "_voteactive") == true) {
+					storage.setItemSync(msg.guild.id + "_voteactive", false);
+					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
+					if (thisvote) {
+						var results = thisvote.getVotes();
+						var topic = results.shift();
+						var resultmessage = "Vote Complete! Here are the results: \n**" + topic + "** \n```";
+						for (var i = 0; i <= (results.length-1); i++) {
+							resultmessage += "Option " + (i+1) + ": " + results[i].choice + " - " + results[i].votes + " votes \n"
+						}
+						msg.channel.sendMessage(resultmessage + "```");
+						delete voteobjects[msg.guild.id + "_votemodule"];
+					}
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! There is no vote currently in progress!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else if (arg1 && !isNaN(arg1)) {
+				if (!votedusers.includes(msg.author.id)) {
+					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
+					var results = thisvote.getVotes();
+					results.shift();
+					if (arg1 <= (results.length-1)) {
+						var vote = parseInt(arg1);
+						thisvote.addVote(vote);
+						votedusers.push(msg.author.id);
+						var results2 = thisvote.getVotes();
+						var topic2 = results2.shift();
+						var resultmessage = "**" + topic2 + "** \n```";
+						for (var i = 0; i <= (results2.length-1); i++) {
+							resultmessage += "Option " + (i+1) + ": " + results2[i].choice + " - " + results2[i].votes + " votes \n"
+						}
+						msg.channel.sendMessage(resultmessage + "```");
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Please give a valid vote!");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! You've already voted!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Please give a valid option such as start, check, end, or an option you are voting for!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Voting",
+		"syntax": "vote <start|check|end> [vote topic; option 1; option 2; option 3; ...]"
+	},
 }
 
 function spamWordEvent() {
@@ -1144,7 +1312,7 @@ function getHelpDescription () {
 
 
 bot.on("ready", () => {
-	console.log("Shard " + bot.shard.id + " Ready!");
+	//console.log("Shard " + bot.shard.id + " Ready!");
 	bot.user.setGame('with fire | ' + prefix + 'help');
 	storage.init();
 });
