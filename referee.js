@@ -1292,7 +1292,7 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Toggles clever in that server *(ADMIN COMMAND)*",
+		"bio": "Toggles clever in that server *(ADMIN COMMAND)*. To use cleverbot, just mention referee in the start of your message",
 		"syntax": "cleverbottoggle"
 	}
 }
