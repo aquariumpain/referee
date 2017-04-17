@@ -1825,13 +1825,13 @@ bot.on("message", msg => {
 					var commandreply = commands[command].response;
 					commandreply(bot, msg, args);
 				}
-				else if (command) {
+				/*else if (command) {
 					var embed = new Discord.RichEmbed();
 					embed.setColor(0xFF0000);
 					embed.setTitle("What's that? Unknown Command!");
 					embed.setDescription("Do " + prefix + "help to get a list of available commands sent to your DMs.");
 					msg.channel.sendEmbed(embed);
-				}
+				}*/
 			}
 		}
 		else {
