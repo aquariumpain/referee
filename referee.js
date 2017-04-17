@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const storage = require('node-persist');
 const bot = new Discord.Client();
 const trivia = require('./trivia.js');
+const ytdl = require('ytdl-core');
 const utils = require('./utils.js');
 const token = require('./token.js');
 const votemodule = require('./vote.js');
@@ -15,6 +16,7 @@ var refereeinvitelink = "https://discordapp.com/oauth2/authorize?client_id=28919
 var currentspammedwords;
 var spamword;
 var spamgoal;
+var musicDisp = {};
 var triviamoduleobjects = {};
 var voteobjects = {};
 var votedusers = [];
@@ -33,7 +35,16 @@ var commands = {
 	"say": {
 		"response": function(bot, msg, args) {
 			if (args) {
-				msg.channel.sendMessage(args);
+				var string = args.trim();
+				if (!string.startsWith(prefix)) {
+					msg.channel.sendMessage(args);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! You can't make me do commands!");
+					msg.channel.sendEmbed(embed);
+				}
 			}
 			else {
 				var embed = new Discord.RichEmbed();
@@ -1294,6 +1305,319 @@ var commands = {
 		},
 		"bio": "Toggles clever in that server *(ADMIN COMMAND)*. To use cleverbot, just mention referee in the start of your message",
 		"syntax": "cleverbottoggle"
+	},
+	"play": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var voicechannel = msg.member.voiceChannel;
+				if (voicechannel) {
+					var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+					if (!queue) {
+	 					queue = { 'disp': null, 'options': { seek: 0, volume: 1 }, 'songs': [] };
+						musicDisp[msg.guild.id + "_musicdispatcher"] = queue;
+					}
+					ytdl.getInfo(args).then(function (songinfo) {
+						queue['songs'].push({ link: args, info: songinfo });
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Song Added!");
+						msg.channel.sendEmbed(embed);
+						if (!queue['disp']) {
+							playNextSong(queue, voicechannel);
+						}
+					}, function (reason) {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Looks like you gave an invalid link!");
+						msg.channel.sendEmbed(embed);
+					});
+
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Looks like you aren't in a voice channel!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Plays a song",
+		"syntax": "play <youtube link>"
+	},
+	"stop": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				if(msg.member.voiceChannel && msg.guild.voiceConnection) {
+					var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+					if (queue) {
+						queue['songs'].splice(1);
+						queue['disp'].end();
+						delete musicDisp[msg.guild.id + "_musicdispatcher"];
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("All songs removed from queue!");
+						msg.channel.sendEmbed(embed);
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Music is not currently playing!");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Stop playing music",
+		"syntax": "stop"
+	},
+	"queue": {
+		"response": function(bot, msg, args) {
+			var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+			if (queue) {
+				var songs = queue['songs'];
+				var description = "";
+				songs.forEach(function (el) {
+					if (description == "") {
+						description += "\\▶" + el.info.title;
+					}
+					else {
+						description += "\n" + el.info.title;
+					}
+				})
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0x00FFFF);
+				embed.setTitle("Queue");
+				embed.setDescription(description);
+				msg.channel.sendEmbed(embed);
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Music is not currently playing!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Returns list of songs in queue",
+		"syntax": "queue"
+	},
+	"skip": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+				if (queue && queue['disp']) {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Song Skipped!");
+					msg.channel.sendEmbed(embed);
+					queue['disp'].end();
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Skips current song",
+		"syntax": "skip"
+	},
+	"currentsong": {
+		"response": function(bot, msg, args) {
+			var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+			if (queue && queue['disp']) {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0x00FFFF);
+				embed.setTitle(queue['songs'][0].info.title);
+				msg.channel.sendEmbed(embed);
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Music is not currently playing!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Returns current playing song",
+		"syntax": "currentsong"
+	},
+	"seek": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+				if (queue && queue['disp']) {
+					var firstsong = queue['songs'][0];
+					queue['songs'].unshift(firstsong);
+					var timeinseconds = parseInt(args);
+					queue['options'] = { position: timeinseconds, volume: queue['disp'].volume };
+					queue['disp'].end();
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Seeks current song",
+		"syntax": "seek <place to seek to *in seconds*>"
+	},
+	"volume": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+				if (queue && queue['disp']) {
+					if (args) {
+						var volumeint = parseInt(args);
+						queue['disp'].setVolume(volumeint/5);
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Volume set to " + volumeint + "/10");
+						msg.channel.sendEmbed(embed);
+					}
+					else {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Volume is " + (queue['disp'].volume*5) + "/10");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Sets volume from 1 to 10 or checks volume",
+		"syntax": "volume [volume]"
+	},
+	"setmusicadminrole": {
+		"response": function (bot, msg, args) {
+			if (isAdminRole(msg.member) == true) {
+				if (args) {
+					role = msg.guild.roles.find(function(el) {
+						return el.name == args;
+					});;
+					if (role == null) {
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0xFF0000);
+						embed.setTitle("Uh Oh! Please give a valid role!");
+						msg.channel.sendEmbed(embed);
+					}
+					else {
+						storage.setItemSync(msg.guild.id + "_musicadminroleid", role.id);
+						var embed = new Discord.RichEmbed();
+						embed.setColor(0x00FFFF);
+						embed.setTitle("Music Admin Role Set to " + role.name + "!");
+						msg.channel.sendEmbed(embed);
+					}
+				}
+				else {
+					storage.removeItemSync(msg.guild.id + "_musicadminroleid")
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Music Admin Role Reset!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Sets Music Admin Role. Leaving the role name blank will reset your set music admin role. This command allows users with the role to control music command. If none is set, everyone is allowed to use the music commands.*(ADMIN COMMAND)*",
+		"syntax": "setadminrole <rolename>"
+	},
+	"pause": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+				if (queue && queue['disp']) {
+					queue['disp'].pause();
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Player Paused!");
+					msg.channel.sendEmbed(embed);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Pauses the player",
+		"syntax": "pause"
+	},
+	"resume": {
+		"response": function(bot, msg, args) {
+			if (isMusicAdminRole(msg.member) == true) {
+				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+				if (queue && queue['disp']) {
+					queue['disp'].resume();
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0x00FFFF);
+					embed.setTitle("Player Resumed!");
+					msg.channel.sendEmbed(embed);
+				}
+				else {
+					var embed = new Discord.RichEmbed();
+					embed.setColor(0xFF0000);
+					embed.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.sendEmbed(embed);
+				}
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Resumes the player",
+		"syntax": "resume"
 	}
 }
 
@@ -1326,6 +1650,23 @@ function parseArguments(args, argumentcount) {
 	return out;
 }
 
+function isMusicAdminRole(messageauthor) {
+	var musicadminroleid = storage.getItemSync(messageauthor.guild.id + "_musicadminroleid");
+	if (musicadminroleid) {
+		if (messageauthor.roles.get(musicadminroleid)) {
+			return true;
+		}
+		else if (messageauthor.id == messageauthor.guild.ownerID) {
+				return true;
+		} else {
+				return false;
+		}
+	}
+	else {
+		return true;
+	}
+}
+
 function isAdminRole(messageauthor) {
 	var adminrole = messageauthor.roles.get(storage.getItemSync(messageauthor.guild.id + "_adminroleid"));
 	if (adminrole) {
@@ -1352,6 +1693,44 @@ function getHelpDescription () {
 	return descarray;
 }
 
+function playSong (queue, connection, stream) {
+	var disp = connection.playStream(stream, queue['options']);
+	queue['disp'] = disp;
+	var volumecurrent = disp.volume;
+	disp.once("end", function (arg) {
+		queue['disp'] = null;
+		queue['songs'].shift();
+		var pos = 0;
+		if (queue['options']['position']) {
+			pos = queue['options']['position'];
+		}
+		queue['options'] = { seek: pos, volume: volumecurrent };
+		playNextSong(queue, connection.channel);
+	});
+}
+
+function playNextSong (queue, voicechannel) {
+	if (queue['songs'].length == 0) {
+		delete musicDisp[voicechannel.guild.id + "_musicdispatcher"];
+		voicechannel.leave();
+		return;
+	}
+	var nextSong = queue['songs'][0];
+	var stream = ytdl(nextSong.link, {filter: "audioonly"});
+	if (!voicechannel.connection) 	{
+		voicechannel.join().then(connection => {
+			connection.on('error', (err) => {
+				console.log('connection error caught', err);
+			});
+			playSong(queue, connection, stream);
+		}, reason => {
+			console.log('Promise reject', reason);
+		});
+	}
+	else {
+		playSong(queue, voicechannel.connection, stream);
+	}
+}
 
 bot.on("ready", () => {
 	//console.log("Shard " + bot.shard.id + " Ready!");
@@ -1484,3 +1863,7 @@ bot.on("message", msg => {
 });
 
 bot.login(token.token);
+
+process.on("unhandledRejection", err => {
+  console.error("Uncaught Promise Error: \n" + err.stack);
+});
