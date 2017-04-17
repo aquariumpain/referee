@@ -1206,8 +1206,8 @@ var commands = {
 			}
 			else if (arg1.toLowerCase() == "end") {
 				if (storage.getItemSync(msg.guild.id + "_voteactive") == true) {
-					storage.setItemSync(msg.guild.id + "_voteactive", false);
 					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
+					storage.setItemSync(msg.guild.id + "_voteactive", false);
 					if (thisvote) {
 						var results = thisvote.getVotes();
 						var topic = results.shift();
@@ -1494,11 +1494,19 @@ var commands = {
 				if (queue && queue['disp']) {
 					if (args) {
 						var volumeint = parseInt(args);
-						queue['disp'].setVolume(volumeint/5);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Volume set to " + volumeint + "/10");
-						msg.channel.sendEmbed(embed);
+						if (!isNaN(volumeint)) {
+							queue['disp'].setVolume(volumeint/5);
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0x00FFFF);
+							embed.setTitle("Volume set to " + volumeint + "/10");
+							msg.channel.sendEmbed(embed);
+						}
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid volume!");
+							msg.channel.sendEmbed(embed);
+						}
 					}
 					else {
 						var embed = new Discord.RichEmbed();
