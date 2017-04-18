@@ -1278,7 +1278,7 @@ var commands = {
 		"response": function(bot, msg, args) {
 			if(isAdminRole(msg.member) == true) {
 				var cleverbotdisabledcurrent = storage.getItemSync(msg.guild.id + "_cleverbotdisabled");
-				if (!cleverbotstatuscurrent) {
+				if (!cleverbotdisabledcurrent) {
 					cleverbotdisabledcurrent = false;
 				}
 				if (cleverbotdisabledcurrent = false) {
