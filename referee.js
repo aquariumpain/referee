@@ -1236,24 +1236,32 @@ var commands = {
 			else if (arg1 && !isNaN(arg1)) {
 				if (!votedusers.includes(msg.guild.id + "_" + msg.author.id)) {
 					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
-					var results = thisvote.getVotes();
-					results.shift();
-					if (arg1 <= (results.length-1)) {
-						var vote = parseInt(arg1);
-						thisvote.addVote(vote);
-						votedusers.push(msg.guild.id + "_" + msg.author.id);
-						var results2 = thisvote.getVotes();
-						var topic2 = results2.shift();
-						var resultmessage = "**" + topic2 + "** \n```";
-						for (var i = 0; i <= (results2.length-1); i++) {
-							resultmessage += "Option " + (i+1) + ": " + results2[i].choice + " - " + results2[i].votes + " votes \n"
+					if (thisvote) {
+						var results = thisvote.getVotes();
+						results.shift();
+						if (arg1 <= (results.length-1)) {
+							var vote = parseInt(arg1);
+							thisvote.addVote(vote);
+							votedusers.push(msg.guild.id + "_" + msg.author.id);
+							var results2 = thisvote.getVotes();
+							var topic2 = results2.shift();
+							var resultmessage = "**" + topic2 + "** \n```";
+							for (var i = 0; i <= (results2.length-1); i++) {
+								resultmessage += "Option " + (i+1) + ": " + results2[i].choice + " - " + results2[i].votes + " votes \n"
+							}
+							msg.channel.sendMessage(resultmessage + "```");
 						}
-						msg.channel.sendMessage(resultmessage + "```");
+						else {
+							var embed = new Discord.RichEmbed();
+							embed.setColor(0xFF0000);
+							embed.setTitle("Uh Oh! Please give a valid vote!");
+							msg.channel.sendEmbed(embed);
+						}
 					}
 					else {
 						var embed = new Discord.RichEmbed();
 						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid vote!");
+						embed.setTitle("Uh Oh! There is currently no vote in progress!");
 						msg.channel.sendEmbed(embed);
 					}
 				}
