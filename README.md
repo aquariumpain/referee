@@ -20,8 +20,6 @@ https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&p
 
 ()getrole - Gets you a role if it is available 
 
-()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
-
 ()invite - Gives an invite to referee
 
 ()serverinfo - Gives basic server info 
@@ -66,6 +64,8 @@ https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&p
 ()embed - Puts text in a nice embed 
 
 ### Administration
+()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
+
 ()autorole - Automatically assigns roles when a user joins the server. (ADMIN COMMAND) MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE AUTOROLE ROLE 
 
 ()announce - Sets an welcome or leave message. Leaving the message blank will clear your set message. Including {Mention} in the message mentions the user that joined. (ADMIN COMMAND)
