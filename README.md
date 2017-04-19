@@ -16,7 +16,7 @@ https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&p
 
 ()help - Displays a list of commands or more detailed info about a command 
 
-()getrolesettings - Adds a role to the getrole command (ADMIN COMMAND) MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE 
+()getrolesettings - Edits gettable roles in the getrole command. (ADMIN COMMAND) MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE 
 
 ()getrole - Gets you a role if it is available 
 
