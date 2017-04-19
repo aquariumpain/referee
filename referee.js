@@ -220,8 +220,8 @@ var commands = {
 				msg.channel.sendEmbed(embed);
 			}
 		},
-		"bio": "Starts an event. *(ADMIN COMMAND)* \n Available Events: Trivia, Spam",
-		"syntax": "event <event name|cancel> [arg1] [arg2]"
+		"bio": "Starts an event. *(ADMIN COMMAND)* \n Available Events: Trivia, Spam. (spam is an event where people have to spam a word a specified number of times and the last person wins) ",
+		"syntax": "event <event name|cancel> [word to spam] [amount of times to spam]"
 	},
 	"rate": {
 		"response": function(bot, msg, args) {
