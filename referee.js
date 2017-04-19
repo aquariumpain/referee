@@ -858,7 +858,9 @@ var commands = {
 				}
 				else {
 				embed.setColor(0x0000FF);
-				embed.setTitle(member.username + "'s avatar. Here's a link: " + member.avatarURL);
+				embed.setTitle(member.username + "'s avatar.");
+				embed.setURL(member.avatarURL);
+				embed.setDescription("Here's a link: [url](" + member.avatarURL + ")");
 				embed.setImage(member.avatarURL);
 				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
