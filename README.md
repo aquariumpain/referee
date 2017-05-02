@@ -63,6 +63,8 @@ https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&p
 
 ()embed - Puts text in a nice embed 
 
+()morse - Turns your message to morse code
+
 ### Administration
 ()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
 
