@@ -1,0 +1,110 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<h1>referee</h1>
+General Purpose Bot for Discord with all sorts of features like events, administration, and music!
+<br>
+<h3>Default referee Prefix</h3>
+()
+<h3><a href="https://discord.gg/CncfjgM">Join the Official referee server</a></h3>
+<a href="https://discord.gg/CncfjgM">https://discord.gg/CncfjgM</a>
+<h3><a href="https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&permissions=2146696319">Invite referee to your server</a></h3>
+<a href="https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&permissions=2146696319">https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&permissions=2146696319</a>
+<h2>Available referee Commands</h2>
+<br>
+<h3>Utility</h3>
+()ping - Returns average ping 
+<br>
+()say - Makes referee say something 
+<br>
+()help - Displays a list of commands or more detailed info about a command 
+<br>
+()getrolesettings - Edits gettable roles in the getrole command. (ADMIN COMMAND) MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE 
+<br>
+()getrole - Gets you a role if it is available 
+<br>
+()invite - Gives an invite to referee
+<br>
+()serverinfo - Gives basic server info 
+<br>
+()avatar - Displays the avatar of a user (in this server) or self if no user is given 
+<br>
+()userinfo - Displays info about a user (in this server) or self if no user is given 
+<br>
+()stats - Gives basic bot info 
+<br>
+<h3>Fun</h3>
+()event - Starts an event. (ADMIN COMMAND)  Available Events: Trivia, Spam. (spam is an event where people have to spam a word a specified number of times and the last person wins)
+<br>
+()rate - Rates something 
+<br>
+()score - Returns your score 
+<br>
+()clearscore - Clears your balance 
+<br>
+()clearallscores - Clears all scores (ADMIN COMMAND) 
+<br>
+()leaderboard - Displays a leaderboard for this server 
+<br>
+()add - Adds an amount to your balance 
+<br>
+()value - Checks your balance 
+<br>
+()clearvalue - Clears your balance 
+<br>
+()dice - Rolls dice 
+<br>
+()slots - Plays slots
+<br>
+()coin - Flips coin
+<br>
+()choose - Chooses between options separated by a comma (,) 
+<br>
+()8ball - Ask the 8ball a question 
+<br>
+()vote - Voting 
+<br>
+()embed - Puts text in a nice embed 
+<br>
+<h3>Administration</h3>
+()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
+<br>
+()autorole - Automatically assigns roles when a user joins the server. (ADMIN COMMAND) MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE AUTOROLE ROLE 
+<br>
+()announce - Sets an welcome or leave message. Leaving the message blank will clear your set message. Including {Mention} in the message mentions the user that joined. (ADMIN COMMAND)
+<br>
+()prefix - Sets a new prefix for your server (ADMIN COMMAND)
+<br>
+()ban - Bans a user (ADMIN COMMAND) 
+<br>
+()purge - Deletes a large amount of messages with a maximum of 100 (ADMIN COMMAND) 
+<br>
+()channeltoggle - Toggles commands in that channel (ADMIN COMMAND) 
+<br>
+()cleverbottoggle - Toggles clever in that server (ADMIN COMMAND). To use cleverbot, just mention referee in the start of your message
+<br>
+<h3>Music</h3>
+()setmusicadminrole - Sets Music Admin Role. Leaving the role name blank will reset your set music admin role. This command allows users with the role to control music command. If none is set, everyone is allowed to use the music commands.(ADMIN COMMAND)
+<br>
+()play - Plays a song 
+<br>
+()stop - Stop playing music 
+<br>
+()queue - Returns list of songs in queue 
+<br>
+()skip - Skips current song 
+<br>
+()currentsong - Returns current playing song 
+<br>
+()seek - Seeks current song 
+<br>
+()volume - Sets volume from 1 to 10 or checks volume  
+<br>
+()pause - Pauses the player 
+<br>
+()resume - Resumes the player
+</body>
+</html>

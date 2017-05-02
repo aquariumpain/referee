@@ -7,8 +7,13 @@ const utils = require('./utils.js');
 const token = require('./token.js');
 const votemodule = require('./vote.js');
 const cleverbotio = require('cleverbot.io');
-const cleverbot = new cleverbotio("HPQImwt7XorKOzyu", "eTJuxJjdy0NptJ9xV2VfRo7Pi2i3Kqj9");
+const snekfetch = require('snekfetch');
+const cleverbot = new cleverbotio(token.cleverbotiouser, token.cleverbotiokey);
 cleverbot.setNick("cleverbotreferee");
+const fs = require('fs');
+const Log = require('log');
+const log = new Log('info', fs.createWriteStream('commandslog.log'));
+const redgeyId = "193884876527632385";
 
 var prefix = "()";
 var refereeserverlink = "https://discord.gg/CncfjgM";
@@ -18,6 +23,34 @@ var spamword;
 var spamgoal;
 var musicDisp = {};
 var triviamoduleobjects = {};
+var morse = {
+	" " : " | ",
+	"a" : ".-",
+	"b" : "-...",
+	"c" : "-.-.",
+	"d" : "-..",
+	"e" : ".",
+	"f" : "..-.",
+	"g" : "--.",
+	"h" : "....",
+	"i" : "..",
+	"j" : ".---",
+	"k" : "-.-",
+	"l" : ".-..",
+	"m" : "--",
+	"n" : "-.",
+	"o" : "---",
+	"p" : ".--.",
+	"q" : "--.-",
+	"r" : ".-.",
+	"s" : "...",
+	"t" : "-",
+	"u" : "..-",
+	"v" : "...-",
+	"w" : ".--",
+	"x" : "-..-",
+	"y" : "-.--",
+	"z" : "--.."};
 var voteobjects = {};
 var votedusers = [];
 var commands = {
@@ -198,7 +231,9 @@ var commands = {
 						return el.name == "trivia";
 					});
 					var thistriviamodule = triviamoduleobjects[msg.guild.id + "_triviamodule"];
-					thistriviamodule.resetTrivia(storage, msg, triviachannel);
+					if (thistriviamodule) {
+						thistriviamodule.resetTrivia(storage, msg, triviachannel);
+					}
 					//storage.setItemSync(msg.guild.id + "_eventactive", false);
 					bot.emit('spamcanceled');
 					var embed = new Discord.RichEmbed();
@@ -256,7 +291,7 @@ var commands = {
 			if (storage.getItemSync(msg.author.id + msg.guild.id + "_score")) {
 				var embed = new Discord.RichEmbed();
 				embed.setColor(0x00FF00);
-				embed.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!");
+				embed.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!", {split:true});
 				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
@@ -335,7 +370,7 @@ var commands = {
 			var rank = allscores.findIndex(function(el) {
 				return el.id == msg.author.id;
 			});
-			msg.channel.sendMessage(":clipboard: **" + msg.guild.name + "'s Leaderboard**\n```" + leaderboardoutput + " \n ------------------------------------------------------ \n▶ Your Rank: " + (rank+1) + " - Your Score: " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "  👀```");
+			msg.channel.sendMessage(":clipboard: **" + msg.guild.name + "'s Leaderboard**\n```" + leaderboardoutput + " \n ------------------------------------------------------ \n▶ Your Rank: " + (rank+1) + " - Your Score: " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "  👀```", {split:true});
 		},
 		"bio": "Displays a leaderboard for this server",
 		"syntax": "leaderboard"
@@ -356,7 +391,7 @@ var commands = {
 					value += amount;
 					storage.setItem(msg.member.id + msg.guild.id + "_money", value);
 					embed.setColor(0x00FF00);
-					embed.setTitle("You now have " + value + ":moneybag:s");
+					embed.setTitle("You now have " + value + ":moneybag:s", {split:true});
 			}
 			msg.channel.sendEmbed(embed);
 		},
@@ -373,7 +408,7 @@ var commands = {
 			}
 			else {
 				embed.setColor(0x00FF00);
-				embed.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:");
+				embed.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:", {split:true});
 				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
 				msg.channel.sendEmbed(embed);
 			}
@@ -452,7 +487,7 @@ var commands = {
 					embed.setAuthor(msg.author.username, msg.author.avatarURL);
 				}
 			}
-			msg.channel.sendEmbed(embed);
+			msg.channel.sendEmbed(embed, {split:true});
 		},
 		"bio": "Plays slots",
 		"syntax": "slots <bet>"
@@ -977,7 +1012,9 @@ var commands = {
 					var argamounttodelete = parseInt(args);
 					var recentmessages = msg.channel.messages;
 					var amounttodelete = (recentmessages.length < argamounttodelete) ? recentmessages.length : argamounttodelete;
-					msg.channel.bulkDelete(amounttodelete + 1).catch(console.error);
+					if (msg.channel) {
+						msg.channel.bulkDelete(amounttodelete + 1).catch(console.error);
+					}
 				}
 				else {
 					var embed = new Discord.RichEmbed();
@@ -1208,8 +1245,8 @@ var commands = {
 			}
 			else if (arg1.toLowerCase() == "end") {
 				if (storage.getItemSync(msg.guild.id + "_voteactive") == true) {
-					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
 					storage.setItemSync(msg.guild.id + "_voteactive", false);
+					var thisvote = voteobjects[msg.guild.id + "_votemodule"];
 					if (thisvote) {
 						var results = thisvote.getVotes();
 						var topic = results.shift();
@@ -1636,28 +1673,53 @@ var commands = {
 		},
 		"bio": "Resumes the player",
 		"syntax": "resume"
-	}
+	},
+	"morse": {
+		"response": function(bot, msg, args) {
+			if (args) {
+				var string = "";
+				var array = args.trim().split("");
+				array.forEach(function (el) {
+					var letter = morse[el.toLowerCase()];
+					string += letter + "  ";
+				});
+				msg.channel.sendMessage(string, {split:true});
+			}
+			else {
+				var embed = new Discord.RichEmbed();
+				embed.setColor(0xFF0000);
+				embed.setTitle("Uh Oh! Please give something to morse!");
+				msg.channel.sendEmbed(embed);
+			}
+		},
+		"bio": "Turns your message to morse code",
+		"syntax": "morse <something to say>"
+	},
 }
 
 function spamWordEvent() {
-	bot.once("spamcanceled", function () {
-		storage.setItemSync(msg.guild.id + "_eventactive", false);
-		return;
-	});
-	bot.on("message", msg => {
-		if (msg.content.toLowerCase() == storage.getItemSync(msg.guild.id + "_spamword")) {
-			var value = storage.getItemSync(msg.guild.id + "_spamcurrentcounter");
-			value++;
-			storage.setItemSync(msg.guild.id + "_spamcurrentcounter", value);
-			if (value == storage.getItemSync(msg.guild.id + "_spamgoal")) {
-				msg.reply("You Have Won!");
-				storage.removeItemSync(msg.guild.id + "_spamword");
-				storage.removeItemSync(msg.guild.id + "_spamgoal");
-				storage.removeItemSync(msg.guild.id + "_spamcurrentcounter");
-				storage.setItemSync(msg.author.id + msg.guild.id + "_eventactive", false);
+	var callback = function (msg) {
+		if (msg.guild) {
+			if (msg.content.toLowerCase() == storage.getItemSync(msg.guild.id + "_spamword")) {
+				var value = storage.getItemSync(msg.guild.id + "_spamcurrentcounter");
+				value++;
+				storage.setItemSync(msg.guild.id + "_spamcurrentcounter", value);
+				if (value == storage.getItemSync(msg.guild.id + "_spamgoal")) {
+					msg.reply("You Have Won!");
+					storage.removeItemSync(msg.guild.id + "_spamword");
+					storage.removeItemSync(msg.guild.id + "_spamgoal");
+					storage.removeItemSync(msg.guild.id + "_spamcurrentcounter");
+					storage.setItemSync(msg.author.id + msg.guild.id + "_eventactive", false);
+				}
 			}
 		}
+	};
+	bot.once("spamcanceled", function () {
+		storage.setItemSync(msg.guild.id + "_eventactive", false);
+		bot.removeListener('message', callback);
+		return;
 	});
+	bot.on("message", callback);
 }
 
 function parseArguments(args, argumentcount) {
@@ -1799,7 +1861,18 @@ bot.on("guildMemberRemove", (member) => {
 });
 
 bot.on("guildCreate", (guild) => {
-	guild.defaultChannel.sendMessage("hi i'm referee and i got some fun tricks up my sleeve")
+	snekfetch.post(`https://discordbots.org/api/bots/289194076258172928/stats`)
+    .send({server_count: bot.guilds.size})
+    .set('Authorization', token.discordbotsorg)
+    .then(console.log('Updated discordbots.org stats. Added ' + guild.name));
+	guild.defaultChannel.sendMessage("hi i'm referee and i got some fun tricks up my sleeve \nDo ()help for help or look at my full documentation here: https://github.com/redgey/referee/blob/master/README.md");
+});
+
+bot.on("guildDelete", (guild) => {
+	snekfetch.post(`https://discordbots.org/api/bots/289194076258172928/stats`)
+    .send({server_count: bot.guilds.size})
+    .set('Authorization', token.discordbotsorg)
+    .then(console.log('Updated discordbots.org stats. Removed ' + guild.name));
 });
 
 
@@ -1837,10 +1910,18 @@ bot.on("message", msg => {
 			if (!channelarray) {
 				channelarray = [];
 			}
-
 			if (!channelarray.includes(msg.channel.id) || command == "channeltoggle") {
+				if (msg.author.id == redgeyId && command == "guilds") {
+					var guilds = "";
+					bot.guilds.forEach(function (el) {
+						guilds += (el.name + "\n");
+					});
+					msg.reply(guilds, {split:true});
+				}
 				if (commands.hasOwnProperty(command)) {
 					var commandreply = commands[command].response;
+					console.log("[" + msg.createdAt + "] #" + msg.channel.name + " | " + msg.guild.name + " (" + msg.author.username + "#" + msg.author.discriminator + "): " + msg.content);
+					log.info("#" + msg.channel.name + " | " + msg.guild.name + " (" + msg.author.username + "#" + msg.author.discriminator + "): " + msg.content);
 					commandreply(bot, msg, args);
 				}
 				/*else if (command) {
