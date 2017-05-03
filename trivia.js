@@ -39,15 +39,15 @@ var utils = require('./utils.js');
 				question = utils.getRandomIntInclusive(0, (questions.length-1));
 			}
 			while (completedquestions.includes(question));
-			triviachannel.sendMessage(questions[question].question);
+			triviachannel.send(questions[question].question);
 			completedquestions.push(question);
 			var outsidethis = this;
 			console.log(question);
 			timeout  = setTimeout(function() {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FFFF);
-				embed.setTitle("No one got it! The answer was " + questions[question].answer + "! Next Question!");
-				triviachannel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.setTitle("No one got it! The answer was " + questions[question].answer + "! Next Question!");
+				triviachannel.send({embed});
 				outsidethis.askQuestion(Discord);
 			}, 20*1000);
 		};
@@ -104,14 +104,14 @@ var utils = require('./utils.js');
 			for (var i = 0; i < count; i++) {
 				leaderboardoutput += (i+1) + ". " + trivialeaderboard[i].usernamediscrim + " \n \t Score: " + trivialeaderboard[i].score + "\n";
 			}
-			guild.defaultChannel.sendMessage(":clipboard: **" + guild.name + "'s Trivia Leaderboard**\n```" + leaderboardoutput + "```");
+			guild.defaultChannel.send(":clipboard: **" + guild.name + "'s Trivia Leaderboard**\n```" + leaderboardoutput + "```");
 			trivialeaderboard.length = 0;
 		};
 
 		this.resetTrivia = function(storage, msg, tchannel) {
 			completedquestions.length = 0;
 			storage.setItemSync(msg.guild.id + "_eventactive", false);
-			tchannel.sendMessage("Trivia Complete! This channel will now be deleted.");
+			tchannel.send("Trivia Complete! This channel will now be deleted.");
 			if (tchannel) {
 				setTimeout(function() {
 					tchannel.delete();
@@ -121,11 +121,11 @@ var utils = require('./utils.js');
 
 
 		this.triviaStart = function(tchannel, Discord, storage, bot) {
-				var embed = new Discord.RichEmbed();
 				triviachannel = tchannel;
-				embed.setColor(0x00FFFF);
-				embed.setTitle("Trivia Event Started");
-				triviachannel.sendEmbed(embed);
+				var embed = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.setTitle("Trivia Event Started");
+				triviachannel.send({embed});
 				this.askQuestion(Discord);
 			};
 

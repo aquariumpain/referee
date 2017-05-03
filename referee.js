@@ -56,11 +56,11 @@ var votedusers = [];
 var commands = {
 	"ping": {
 		"response": function(bot, msg) {
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0x00FF00);
-			embed.setTitle("Pong! Your ping is " + bot.ping + "ms");
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0x00FF00)
+			.setTitle("Pong! Your ping is " + bot.ping + "ms");
+			//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.send({embed});
 		},
 		"bio": "Returns average ping",
 		"syntax": "ping"
@@ -70,20 +70,20 @@ var commands = {
 			if (args) {
 				var string = args.trim();
 				if (!string.startsWith(prefix)) {
-					msg.channel.sendMessage(args);
+					msg.channel.send(args);
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! You can't make me do commands!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! You can't make me do commands!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give something to say!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give something to say!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Makes referee say something",
@@ -92,33 +92,33 @@ var commands = {
 	"help": {
 		"response": function(bot, msg, args) {
 			if (!args) {
-				var embed3 = new Discord.RichEmbed();
-				embed3.setColor(0x00FFFF);
-				embed3.addField("Default referee Prefix", "`" + prefix + "`", false);
 				var serverprefix = storage.getItemSync(msg.guild.id + "_prefix");
-				if (serverprefix) {
-					embed3.addField(msg.guild.name + "'s Custom Prefix", "`" + serverprefix + "`", false);
+				if (!serverprefix) {
+					serverprefix = "None";
 				}
-				embed3.addField("Join the Official referee server", refereeserverlink, false);
-				embed3.addField("Invite referee to your server", refereeinvitelink, false);
-				//embed3.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.author.sendEmbed(embed3);
+				const embed3 = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.addField("Default referee Prefix", "`" + prefix + "`", false)
+				.addField(msg.guild.name + "'s Custom Prefix", "`" + serverprefix + "`", false)
+				.addField("Join the Official referee server", refereeserverlink, false)
+				.addField("Invite referee to your server", refereeinvitelink, false);
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.author.send({embed3});
 				var helparray = getHelpDescription();
 				for (var i = 0; i < helparray.length; i += 15) {
 					var joined = helparray.slice(i, (i+15));
-
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Available referee Commands");
-					embed.setDescription(joined);
-					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-					msg.author.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Available referee Commands")
+					.setDescription(joined);
+					//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					msg.author.send({embed});
 				}
-				var embed2 = new Discord.RichEmbed();
-				embed2.setColor(0x00FFFF);
-				embed2.setTitle("A list of commands has been sent to your DMs");
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed2);
+				const embed2 = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.setTitle("A list of commands has been sent to your DMs")
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed2});
 			}
 			else {
 				var command = commands[args];
@@ -127,17 +127,17 @@ var commands = {
 					if (!serverprefix) {
 						serverprefix = prefix;
 					}
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.addField(prefix + args + " - " + command.bio, "Usage: " + serverprefix + command.syntax, false);
-					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.addField(prefix + args + " - " + command.bio, "Usage: " + serverprefix + command.syntax, false);
+					//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a valid command!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Please give a valid command!");
+					msg.channel.send({embed});
 				}
 			}
 		},
@@ -152,32 +152,32 @@ var commands = {
 						return el.name == args;
 					});;
 					if (role == null) {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid role!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a valid role!");
+						msg.channel.send({embed});
 					}
 					else {
 						storage.setItemSync(msg.guild.id + "_adminroleid", role.id);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Admin Role Set to " + role.name + "!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Admin Role Set to " + role.name + "!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
 					storage.removeItemSync(msg.guild.id + "_adminroleid")
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Admin Role Reset!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Admin Role Reset!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Sets Admin Role. Leaving the role name blank will reset your current admin role. *(ADMIN COMMAND)*",
@@ -192,13 +192,26 @@ var commands = {
 			if(isAdminRole(msg.member) == true) {
 				if (!storage.getItemSync(msg.guild.id + "_eventactive")) {
 					if (eventtype.toLowerCase() == "trivia") {
-						storage.setItemSync(msg.guild.id + "_eventactive", true);
-						msg.guild.createChannel("trivia", "text").then( function(el) {
+						if (msg.guild.me.hasPermission("MANAGE_CHANNELS")) {
+							storage.setItemSync(msg.guild.id + "_eventactive", true);
+							var triviachannel = msg.guild.channels.find(function(el) {
+								return el.name == "trivia" && el.type == "text";
+							});
+							if (!triviachannel) {
+								msg.guild.createChannel("trivia", "text").then( function(el) {
+									triviachannel = el;
+								});
+							}
 							var thistriviamodule = new trivia.create();
 							triviamoduleobjects[msg.guild.id + "_triviamodule"] = thistriviamodule;
-							var triviachannel = el;
 							thistriviamodule.triviaStart(triviachannel, Discord, storage, bot);
-						});
+						}
+						else {
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle(":no_entry: Error! I do not have the Manage Channels permission!");
+							msg.channel.send({embed});
+						}
 					}
 					else if (eventtype.toLowerCase() == "spam") {
 						if (!isNaN(arg2)) {
@@ -207,23 +220,23 @@ var commands = {
 							storage.setItemSync(msg.guild.id + "_spamgoal", arg2);
 							storage.setItemSync(msg.guild.id + "_spamcurrentcounter", 0);
 							spamWordEvent();
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FFFF);
-							embed.setTitle("Spam Event Started. The word is " + arg1 + "!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FFFF)
+							.setTitle("Spam Event Started. The word is " + arg1 + "!");
+							msg.channel.send({embed});
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid number of words to spam!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please give a valid number of words to spam!");
+							msg.channel.send({embed});
 						}
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid event type such as Trivia or Spam!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a valid event type such as Trivia or Spam!");
+						msg.channel.send({embed});
 					}
 				}
 				else if (eventtype.toLowerCase() == "cancel") {
@@ -236,23 +249,23 @@ var commands = {
 					}
 					//storage.setItemSync(msg.guild.id + "_eventactive", false);
 					bot.emit('spamcanceled');
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Event Canceled");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Event Canceled");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Looks like there's already an event in progress!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Looks like there's already an event in progress!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Starts an event. *(ADMIN COMMAND)* \n Available Events: Trivia, Spam. (spam is an event where people have to spam a word a specified number of times and the last person wins) ",
@@ -263,24 +276,24 @@ var commands = {
 			if (args) {
 				var text = args;
 				if (text.length < 200) {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FF00);
-					embed.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10");
-					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FF00)
+					.setTitle(msg.author.username + ", I rate " + args + " a " + utils.getRandomIntInclusive(0,10) + "/10");
+					//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! How do I rate something I can't even say!?!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! How do I rate something I can't even say!?!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give something to rate!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give something to rate!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Rates something",
@@ -289,17 +302,17 @@ var commands = {
 	"score": {
 		"response": function(bot, msg) {
 			if (storage.getItemSync(msg.author.id + msg.guild.id + "_score")) {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!", {split:true});
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FF00)
+				.setTitle("Your score is " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "!", {split:true});
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle("Uh Oh! Looks like you don't have a score. Talk in the channels to get points!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FF00)
+				.setTitle("Uh Oh! Looks like you don't have a score. Talk in the channels to get points!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Returns your score",
@@ -307,11 +320,11 @@ var commands = {
 	},
 	"clearscore": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
 			storage.removeItem(msg.author.id + msg.guild.id + "_score");
-			embed.setColor(0x00FF00);
-			embed.setTitle(msg.author.username + "'s score has been reset");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0x00FF00)
+			.setTitle(msg.author.username + "'s score has been reset");
+			msg.channel.send({embed});
 		},
 		"bio": "Clears your balance",
 		"syntax": "clearscore"
@@ -322,16 +335,16 @@ var commands = {
 				msg.guild.members.forEach(function(el) {
 					storage.removeItemSync(el.id + msg.guild.id + "_score");
 				});
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FF00);
-				embed.setTitle("All Scores Cleared!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FF00)
+				.setTitle("All Scores Cleared!");
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Clears all scores *(ADMIN COMMAND)*",
@@ -370,18 +383,19 @@ var commands = {
 			var rank = allscores.findIndex(function(el) {
 				return el.id == msg.author.id;
 			});
-			msg.channel.sendMessage(":clipboard: **" + msg.guild.name + "'s Leaderboard**\n```" + leaderboardoutput + " \n ------------------------------------------------------ \n▶ Your Rank: " + (rank+1) + " - Your Score: " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "  👀```", {split:true});
+			msg.channel.send(":clipboard: **" + msg.guild.name + "'s Leaderboard**\n```" + leaderboardoutput + " \n ------------------------------------------------------ \n▶ Your Rank: " + (rank+1) + " - Your Score: " + storage.getItemSync(msg.author.id + msg.guild.id + "_score") + "  👀```", {split:true});
 		},
 		"bio": "Displays a leaderboard for this server",
 		"syntax": "leaderboard"
 	},
 	"add": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
 			var amount = parseInt(args);
 			if (isNaN(args) || args == "") {
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give a valid amount!");
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give a valid amount!");
+				msg.channel.send({embed});
 			}
 			else {
 				 	var value = storage.getItemSync(msg.member.id + msg.guild.id + "_money");
@@ -390,27 +404,29 @@ var commands = {
 					}
 					value += amount;
 					storage.setItem(msg.member.id + msg.guild.id + "_money", value);
-					embed.setColor(0x00FF00);
-					embed.setTitle("You now have " + value + ":moneybag:s", {split:true});
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FF00)
+					.setTitle("You now have " + value + ":moneybag:s", {split:true});
+					msg.channel.send({embed});
 			}
-			msg.channel.sendEmbed(embed);
 		},
 		"bio": "Adds an amount to your balance",
 		"syntax": "add <amount>"
 	},
 	"value": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
 			if (storage.getItemSync(msg.member.id + msg.guild.id + "_money") == undefined || storage.getItemSync(msg.member.id + msg.guild.id + "_money") == 0) {
-				embed.setColor(0x00FF00);
-				embed.setTitle("Looks like you've got nothing in your account. Do $add <amount> to get some money");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FF00)
+				.setTitle("Looks like you've got nothing in your account. Do $add <amount> to get some money");
+				msg.channel.send({embed});
 			}
 			else {
-				embed.setColor(0x00FF00);
-				embed.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:", {split:true});
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FF00)
+				.setTitle(msg.author.username + " has " + storage.getItemSync(msg.member.id + msg.guild.id + "_money") + ":moneybag:", {split:true});
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Checks your balance",
@@ -418,49 +434,45 @@ var commands = {
 	},
 	"clearvalue": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
 			storage.removeItem(msg.member.id + msg.guild.id + "_money");
-			embed.setColor(0x00FF00);
-			embed.setTitle(msg.author.username + "'s value has been reset");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0x00FF00)
+			.setTitle(msg.author.username + "'s value has been reset");
+			msg.channel.send({embed});
 		},
 		"bio": "Clears your balance",
 		"syntax": "clearvalue"
 	},
 	"dice": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0xFFFFFF);
-			embed.setTitle(":game_die: " + utils.getRandomIntInclusive(1, 6) + " :game_die:");
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0xFFFFFF)
+			.setTitle(":game_die: " + utils.getRandomIntInclusive(1, 6) + " :game_die:");
+			//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.send({embed});
 		},
 		"bio": "Rolls dice",
 		"syntax": "dice"
 	},
 	"slots": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
 			if (isNaN(args) || args == "") {
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give a valid bet!");
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give a valid bet!");
 			}
 			else {
-				var one = utils.getRandomIntInclusive(1,3);
-				var two = utils.getRandomIntInclusive(1,3);
-				var three = utils.getRandomIntInclusive(1,3);
 				var bet = parseInt(args);
 				if (storage.getItemSync(msg.member.id + msg.guild.id + "_money") < bet) {
-					embed.setColor(0xFF0000);
-					embed.setTitle("You can't play! You don't even have what you're betting! Do $add <amount> to get more money");
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("You can't play! You don't even have what you're betting! Do $add <amount> to get more money");
+					msg.channel.send({embed});
 				}
 				else {
-					embed.setColor(0x00FF00);
-					embed.setTitle("Slots");
-					embed.setDescription(
-					"-- " + (one-1) + " " + (two-1) + " " + (three-1) + " -- \n" +
-					"**-- " + one + " " + two + " " + three + " --** \n" +
-					"-- " + (one+1) + " " + (two+1) + " " + (three+1) +  " --");
+					var one = utils.getRandomIntInclusive(1,3);
+					var two = utils.getRandomIntInclusive(1,3);
+					var three = utils.getRandomIntInclusive(1,3);
 					var winorloss = "";
 					if (one == two && one == three) {
 						winorloss = "You Won " + (bet + 500) + " :moneybag:s!"
@@ -482,12 +494,19 @@ var commands = {
 							storage.setItem(msg.member.id + msg.guild.id + "_money", value);
 						});
 				 	}
-					embed.addField("Result", winorloss, true);
-					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-					embed.setAuthor(msg.author.username, msg.author.avatarURL);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FF00)
+					.setTitle("Slots")
+					.setDescription(
+					"-- " + (one-1) + " " + (two-1) + " " + (three-1) + " -- \n" +
+					"**-- " + one + " " + two + " " + three + " --** \n" +
+					"-- " + (one+1) + " " + (two+1) + " " + (three+1) +  " --")
+					.addField("Result", winorloss, true)
+					//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					.setAuthor(msg.author.username, msg.author.avatarURL);
+					msg.channel.send({embed});
 				}
 			}
-			msg.channel.sendEmbed(embed, {split:true});
 		},
 		"bio": "Plays slots",
 		"syntax": "slots <bet>"
@@ -510,16 +529,16 @@ var commands = {
 							}
 							rolearray.push(roletoadd.id);
 							storage.setItemSync(msg.guild.id + "_availablegetroles", rolearray);
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FF00);
-							embed.setTitle("Role " + roletoadd.name + " added as an available role for the getrole command!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FF00)
+							.setTitle("Role " + roletoadd.name + " added as an available role for the getrole command!");
+							msg.channel.send({embed});
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid role!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.send({embed});
 						}
 					}
 					else if (arg1 == "remove") {
@@ -533,42 +552,46 @@ var commands = {
 								if (index && index > -1) {
 	    						rolearray.splice(index, 1);
 									storage.setItemSync(msg.guild.id + "_availablegetroles", rolearray);
+									const embed = new Discord.RichEmbed()
+									.setColor(0x00FF00)
+									.setTitle("Role removed from available roles for the getrole command!");
+									msg.channel.send({embed});
 								}
 								else {
-									var embed = new Discord.RichEmbed();
-									embed.setColor(0xFF0000);
-									embed.setTitle("Uh Oh! This role is not set as an getrole!");
-									msg.channel.sendEmbed(embed);
+									const embed = new Discord.RichEmbed()
+									.setColor(0xFF0000)
+									.setTitle("Uh Oh! This role is not set as an getrole!");
+									msg.channel.send({embed});
 								}
 							}
 							else {
-								var embed = new Discord.RichEmbed();
-								embed.setColor(0xFF0000);
-								embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
-								msg.channel.sendEmbed(embed);
+								const embed = new Discord.RichEmbed()
+								.setColor(0xFF0000)
+								.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+								msg.channel.send({embed});
 							}
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid role!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please give a valid role!");
+							msg.channel.send({embed});
 						}
 					}
 					else if (arg1 == "clear") {
 						var rolearray = storage.getItemSync(msg.guild.id + "_availablegetroles");
 						if (rolearray) {
 							storage.removeItemSync(msg.guild.id + "_availablegetroles");
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FF00);
-							embed.setTitle("Getroles Reset!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FF00)
+							.setTitle("Getroles Reset!");
+							msg.channel.send({embed});
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+							msg.channel.send({embed});
 						}
 					}
 					else if (arg1 == "list") {
@@ -581,39 +604,39 @@ var commands = {
 								});
 								rolelist += role.name + " | ";
 							});
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FFFF);
-							embed.setTitle("All GetRole Roles for " + msg.guild.name);
-							embed.setDescription(rolelist);
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FFFF)
+							.setTitle("All GetRole Roles for " + msg.guild.name)
+							.setDescription(rolelist);
+							msg.channel.send({embed});
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! It looks like you don't have any getroles set!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! It looks like you don't have any getroles set!");
+							msg.channel.send({embed});
 						}
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list getroles!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list getroles!");
+						msg.channel.send({embed});
 					}
 
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give valid arguments!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Please give valid arguments!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Adds a role to the getrole command *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE GETROLE ROLE***",
@@ -621,42 +644,50 @@ var commands = {
 	},
 	"getrole": {
 		"response": function(bot, msg, args) {
-			var roletoadd = msg.guild.roles.find(function(el) {
-				return el.name == args;
-			});
-			if (roletoadd) {
-				var availableroles = storage.getItemSync(msg.guild.id + "_availablegetroles");
-				var gettable = availableroles.find(function(el) {
-					return el == roletoadd.id;
+			if (msg.guild.me.hasPermission("MANAGE_ROLES")) {
+				var roletoadd = msg.guild.roles.find(function(el) {
+					return el.name == args;
 				});
-				if (gettable) {
-					try {
-						msg.member.addRole(roletoadd).then(
-							function (u) {
-							},
-							function (reason) {
-							}
-						);
+				if (roletoadd) {
+					var availableroles = storage.getItemSync(msg.guild.id + "_availablegetroles");
+					var gettable = availableroles.find(function(el) {
+						return el == roletoadd.id;
+					});
+					if (gettable) {
+						try {
+							msg.member.addRole(roletoadd).then(
+								function (u) {
+								},
+								function (reason) {
+								}
+							);
+						}
+						catch (e) {
+						}
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FF00)
+						.setTitle("You have received the " + roletoadd.name + " role!");
+						msg.channel.send({embed});
 					}
-					catch (e) {
+					else {
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a role that I can add!");
+						msg.channel.send({embed});
 					}
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FF00);
-					embed.setTitle("You have received the " + roletoadd.name + " role!");
-					msg.channel.sendEmbed(embed);
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a role that I can add!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Please give a valid role!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give a valid role!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle(":no_entry: Error! I do not have the Manage Roles permission!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Gets you a role if it is available",
@@ -664,127 +695,138 @@ var commands = {
 	},
 	"autorole": {
 		"response": function(bot, msg, args) {
-			if(isAdminRole(msg.member) == true) {
-				if (args) {
-					arglist = parseArguments(args, 2);
-					arg1 = arglist[0];
-					arg2 = arglist[1];
-					if (arg1 == "add") {
-						var roletoadd = msg.guild.roles.find(function(el) {
-							return el.name == arg2;
-						});
-						if (roletoadd) {
-							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
-							if (!rolearray) {
-								rolearray = [];
+			if (msg.guild.me.hasPermission("MANAGE_ROLES")) {
+				if(isAdminRole(msg.member) == true) {
+					if (args) {
+						arglist = parseArguments(args, 2);
+						arg1 = arglist[0];
+						arg2 = arglist[1];
+						if (arg1 == "add") {
+							var roletoadd = msg.guild.roles.find(function(el) {
+								return el.name == arg2;
+							});
+							if (roletoadd) {
+								var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+								if (!rolearray) {
+									rolearray = [];
+								}
+								rolearray.push(roletoadd.id);
+								storage.setItemSync(msg.guild.id + "_autorole", rolearray);
+								const embed = new Discord.RichEmbed()
+								.setColor(0x00FF00)
+								.setTitle("The " + roletoadd.name + " role will now be added automatically when a user joins this server!");
+								msg.channel.send({embed});
 							}
-							rolearray.push(roletoadd.id);
-							storage.setItemSync(msg.guild.id + "_autorole", rolearray);
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FF00);
-							embed.setTitle("The " + roletoadd.name + " role will now be added automatically when a user joins this server!");
-							msg.channel.sendEmbed(embed);
+							else {
+								const embed = new Discord.RichEmbed()
+								.setColor(0xFF0000)
+								.setTitle("Uh Oh! Please give a valid role!");
+								msg.channel.send({embed});
+							}
 						}
-						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid role!");
-							msg.channel.sendEmbed(embed);
-						}
-					}
-					else if (arg1 == "remove") {
-						var roletoremove = msg.guild.roles.find(function(el) {
-							return el.name == arg2;
-						});
-						if (roletoremove) {
-							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
-							if (rolearray) {
-								var index = rolearray.indexOf(roletoremove.id);
-								if (index && index > -1) {
-	    						rolearray.splice(index, 1);
-									storage.setItemSync(msg.guild.id + "_autorole", rolearray);
+						else if (arg1 == "remove") {
+							var roletoremove = msg.guild.roles.find(function(el) {
+								return el.name == arg2;
+							});
+							if (roletoremove) {
+								var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+								if (rolearray) {
+									var index = rolearray.indexOf(roletoremove.id);
+									if (index && index > -1) {
+		    						rolearray.splice(index, 1);
+										storage.setItemSync(msg.guild.id + "_autorole", rolearray);
+										const embed = new Discord.RichEmbed()
+										.setColor(0x00FF00)
+										.setTitle("Role removed from autoroles!");
+										msg.channel.send({embed});
+									}
+									else {
+										const embed = new Discord.RichEmbed()
+										.setColor(0xFF0000)
+										.setTitle("Uh Oh! This role is not set as an autorole!");
+										msg.channel.send({embed});
+									}
 								}
 								else {
-									var embed = new Discord.RichEmbed();
-									embed.setColor(0xFF0000);
-									embed.setTitle("Uh Oh! This role is not set as an autorole!");
-									msg.channel.sendEmbed(embed);
+									const embed = new Discord.RichEmbed()
+									.setColor(0xFF0000)
+									.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+									msg.channel.send({embed});
 								}
 							}
 							else {
-								var embed = new Discord.RichEmbed();
-								embed.setColor(0xFF0000);
-								embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
-								msg.channel.sendEmbed(embed);
+								const embed = new Discord.RichEmbed()
+								.setColor(0xFF0000)
+								.setTitle("Uh Oh! Please give a valid role!");
+								msg.channel.send({embed});
+							}
+						}
+						else if (arg1 == "clear") {
+							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+							if (rolearray) {
+								storage.removeItemSync(msg.guild.id + "_autorole");
+								const embed = new Discord.RichEmbed()
+								.setColor(0x00FF00)
+								.setTitle("Autoroles Reset!");
+								msg.channel.send({embed});
+							}
+							else {
+								const embed = new Discord.RichEmbed()
+								.setColor(0xFF0000)
+								.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+								msg.channel.send({embed});
+							}
+						}
+						else if (arg1 == "list") {
+							var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
+							var rolelist = "";
+							if (rolearray) {
+								console.log(rolearray);
+								rolearray.forEach(function (el) {
+									var role = msg.guild.roles.find(function(ele) {
+										return ele.id == el;
+									});
+									rolelist += role.name + " | ";
+								});
+								const embed = new Discord.RichEmbed()
+								.setColor(0x00FFFF)
+								.setTitle("All Autorole Roles for " + msg.guild.name)
+								.setDescription(rolelist);
+								msg.channel.send({embed});
+							}
+							else {
+								const embed = new Discord.RichEmbed()
+								.setColor(0xFF0000)
+								.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
+								msg.channel.send({embed});
 							}
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid role!");
-							msg.channel.sendEmbed(embed);
-						}
-					}
-					else if (arg1 == "clear") {
-						var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
-						if (rolearray) {
-							storage.removeItemSync(msg.guild.id + "_autorole");
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FF00);
-							embed.setTitle("Autoroles Reset!");
-							msg.channel.sendEmbed(embed);
-						}
-						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
-							msg.channel.sendEmbed(embed);
-						}
-					}
-					else if (arg1 == "list") {
-						var rolearray = storage.getItemSync(msg.guild.id + "_autorole");
-						var rolelist = "";
-						if (rolearray) {
-							console.log(rolearray);
-							rolearray.forEach(function (el) {
-								var role = msg.guild.roles.find(function(ele) {
-									return ele.id == el;
-								});
-								rolelist += role.name + " | ";
-							});
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FFFF);
-							embed.setTitle("All Autorole Roles for " + msg.guild.name);
-							embed.setDescription(rolelist);
-							msg.channel.sendEmbed(embed);
-						}
-						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! It looks like you don't have any autoroles set!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list autoroles!");
+							msg.channel.send({embed});
 						}
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please specify whether to add, remove, clear, or list autoroles!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give valid arguments!");
+						msg.channel.send({embed});
 					}
-
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give valid arguments!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle(":no_entry: Error! I do not have the Manage Roles permission!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Automatically assigns roles when a user joins the server. *(ADMIN COMMAND)* ***MAKE SURE THAT THE referee ROLE IS HIGHER THAN THE AUTOROLE ROLE***",
@@ -797,47 +839,54 @@ var commands = {
 				var arg1 = (ind >= 0) ? args.substring(0, ind) : args;
 				var arg2 = (ind >= 0) ? args.substring(ind + 1) : "";
 				var message = arg2;
-				var embed = new Discord.RichEmbed();
 				if (arg1 == "welcome") {
 					if (arg2) {
 						storage.setItemSync(msg.guild.id + "_welcomemessage", message);
 						storage.setItemSync(msg.guild.id + "_welcomechannel", msg.channel.id);
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Welcome Message Set!");
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Welcome Message Set!");
+						msg.channel.send({embed});
 					}
 					else {
 						storage.removeItemSync(msg.guild.id + "_welcomemessage");
 						storage.removeItemSync(msg.guild.id + "_welcomechannel");
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Welcome Message Reset!");
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Welcome Message Reset!");
+						msg.channel.send({embed});
 					}
 				}
 				else if (arg1 == "leave") {
 					if (arg2) {
 						storage.setItemSync(msg.guild.id + "_leavemessage", message);
 						storage.setItemSync(msg.guild.id + "_leavechannel", msg.channel.id);
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Leave Message Set!");
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Leave Message Set!");
+						msg.channel.send({embed});
 					}
 					else {
 						storage.removeItemSync(msg.guild.id + "_leavemessage");
 						storage.removeItemSync(msg.guild.id + "_leavechannel");
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Leave Message Reset!");
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Leave Message Reset!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a valid announce type such as welcome or leave!");
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Please give a valid announce type such as welcome or leave!");
+					msg.channel.send({embed});
 				}
-				msg.channel.sendEmbed(embed);
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Sets an welcome or leave message. Leaving the message blank will clear your set message. Including {Mention} in the message mentions the user that joined. *(ADMIN COMMAND)*",
@@ -845,18 +894,18 @@ var commands = {
 	},
 	"serverinfo": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0xFF00FF);
-			embed.addField("Name", msg.guild.name, true);
-			embed.addField("Owner", msg.guild.owner.user.username + "#" + msg.guild.owner.user.discriminator, true);
-			embed.setThumbnail(msg.guild.iconURL);
-			embed.addField("Channels", msg.guild.channels.size, true);
-			embed.addField("Members", msg.guild.memberCount, true);
-			embed.addField("Created", msg.guild.createdAt, true);
-			embed.addField("ID", msg.guild.id, true);
-			embed.setAuthor(msg.author.username, msg.author.avatarURL);
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0xFF00FF)
+			.addField("Name", msg.guild.name, true)
+			.addField("Owner", msg.guild.owner.user.username + "#" + msg.guild.owner.user.discriminator, true)
+			.setThumbnail(msg.guild.iconURL)
+			.addField("Channels", msg.guild.channels.size, true)
+			.addField("Members", msg.guild.memberCount, true)
+			.addField("Created", msg.guild.createdAt, true)
+			.addField("ID", msg.guild.id, true)
+			.setAuthor(msg.author.username, msg.author.avatarURL);
+			//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.send({embed});
 		},
 		"bio": "Gives basic server info",
 		"syntax": "serverinfo"
@@ -879,26 +928,28 @@ var commands = {
 					member = member.user;
 				}
 			}
-			var embed = new Discord.RichEmbed();
 			if (member == null) {
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! I can't find the user you're looking for!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! I can't find the user you're looking for!");
+				msg.channel.send({embed});
 			}
 			else {
 				if (member.avatarURL == null) {
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! It looks like you don't have a set avatar!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! It looks like you don't have a set avatar!");
+					msg.channel.send({embed});
 				}
 				else {
-				embed.setColor(0x0000FF);
-				embed.setTitle(member.username + "'s avatar.");
-				embed.setURL(member.avatarURL);
-				embed.setDescription("Here's a link: [url](" + member.avatarURL + ")");
-				embed.setImage(member.avatarURL);
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x0000FF)
+				.setTitle(member.username + "'s avatar.")
+				.setURL(member.avatarURL)
+				.setDescription("Here's a link: [url](" + member.avatarURL + ")")
+				.setImage(member.avatarURL);
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 				}
 			}
 		},
@@ -910,7 +961,6 @@ var commands = {
 			if(args == "") {
 				args = msg.author.username + "#" + msg.author.discriminator;
 			}
-			var embed = new Discord.RichEmbed();
 			var member;
 			var mentionuser = msg.mentions.users.first();
 			if (mentionuser) {
@@ -925,20 +975,22 @@ var commands = {
 				}
 			}
 			if (member == null) {
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! I can't find the user you're looking for!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! I can't find the user you're looking for!");
+				msg.channel.send({embed});
 			}
 			else {
-			embed.setColor(0x00FA9A);
-			embed.addField("Name", member.username, true);
-			embed.addField("Discriminator", member.discriminator, true);
-			embed.addField("ID", member.id, true);
-			embed.addField("Joined", member.createdAt, true);
-			embed.setThumbnail(member.avatarURL);
-			embed.setAuthor(msg.author.username, msg.author.avatarURL);
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FA9A)
+				.addField("Name", member.username, true)
+				.addField("Discriminator", member.discriminator, true)
+				.addField("ID", member.id, true)
+				.addField("Joined", member.createdAt, true)
+				.setThumbnail(member.avatarURL)
+				.setAuthor(msg.author.username, msg.author.avatarURL);
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Displays info about a user (in this server) or self if no user is given",
@@ -946,60 +998,68 @@ var commands = {
 	},
 	"stats": {
 		"response": function(bot, msg, args) {
-			var embed = new Discord.RichEmbed();
-			embed.setTitle("Bot Stats");
-			embed.setColor(0xFF00FF);
-			embed.addField("Name", bot.user.username, true);
-			embed.addField("Owner", "redgey#9352", true);
-			embed.setThumbnail(bot.user.avatarURL);
-			embed.addField("Total Guilds", bot.guilds.size, true);
-			embed.addField("Total Members", bot.users.size, true);
-			embed.addField("Total Channels", bot.channels.size, true);
-			embed.addField("Library", "discord.js", true);
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setTitle("Bot Stats")
+			.setColor(0xFF00FF)
+			.addField("Name", bot.user.username, true)
+			.addField("Owner", "redgey#9352", true)
+			.setThumbnail(bot.user.avatarURL)
+			.addField("Total Guilds", bot.guilds.size, true)
+			.addField("Total Members", bot.users.size, true)
+			.addField("Total Channels", bot.channels.size, true)
+			.addField("Library", "discord.js", true);
+			//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.send({embed});
 		},
 		"bio": "Gives basic bot info",
 		"syntax": "stats"
 	},
 	"ban": {
 		"response": function(bot, msg, args) {
-			if(isAdminRole(msg.member) == true) {
-				var arglist = parseArguments(args, 2);
-				var arg1 = arglist[0];
-				var arg2 = arglist[1];
-				var mentionuser = msg.mentions.users.first();
-				if (mentionuser) {
-					var member = msg.guild.members.find(function(el) {
-						return el.id == mentionuser.id;
-					});
-					var days;
-					if (arg2 && !isNaN(arg2)) {
-						days = arg2;
-						console.log(days)
-						member.ban(days);
+			if (msg.guild.me.hasPermission("BAN_MEMBERS")) {
+				if(isAdminRole(msg.member) == true) {
+					var arglist = parseArguments(args, 2);
+					var arg1 = arglist[0];
+					var arg2 = arglist[1];
+					var mentionuser = msg.mentions.users.first();
+					if (mentionuser) {
+						var member = msg.guild.members.find(function(el) {
+							return el.id == mentionuser.id;
+						});
+						var days;
+						if (arg2 && !isNaN(arg2)) {
+							days = arg2;
+							console.log(days)
+							member.ban(days);
+						}
+						else {
+							member.ban();
+						}
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle(mentionuser.username + " Banned!");
+						msg.channel.send({embed});
 					}
 					else {
-						member.ban();
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a valid user!");
+						msg.channel.send({embed});
 					}
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle(mentionuser.username + " Banned!");
-					msg.channel.sendEmbed(embed);
-				}
-				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a valid user!");
-					msg.channel.sendEmbed(embed);
-				}
-				}
+					}
 
+				else {
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+					msg.channel.send({embed});
+				}
+			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle(":no_entry: Error! I do not have the Ban Members permission!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Bans a user *(ADMIN COMMAND)*",
@@ -1007,27 +1067,35 @@ var commands = {
 	},
 	"purge": {
 		"response": function(bot, msg, args) {
-			if(isAdminRole(msg.member) == true) {
-				if (!isNaN(args)) {
-					var argamounttodelete = parseInt(args);
-					var recentmessages = msg.channel.messages;
-					var amounttodelete = (recentmessages.length < argamounttodelete) ? recentmessages.length : argamounttodelete;
-					if (msg.channel) {
-						msg.channel.bulkDelete(amounttodelete + 1).catch(console.error);
+			if (msg.guild.me.hasPermission("MANAGE_MESSAGES")) {
+				if(isAdminRole(msg.member) == true) {
+					if (!isNaN(args)) {
+						var argamounttodelete = parseInt(args);
+						var recentmessages = msg.channel.messages;
+						var amounttodelete = (recentmessages.length < argamounttodelete) ? recentmessages.length : argamounttodelete;
+						if (msg.channel) {
+							msg.channel.bulkDelete(amounttodelete + 1).catch(console.error);
+						}
+					}
+					else {
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a valid amount of messages to delete!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Please give a valid amount of messages to delete!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle(":no_entry: Error! I do not have the Manage Messages permission!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Deletes a large amount of messages with a maximum of 100 *(ADMIN COMMAND)*",
@@ -1039,31 +1107,31 @@ var commands = {
 				if (args) {
 					if (args < 20) {
 						storage.setItemSync(msg.guild.id + "_prefix", args);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Prefix set to `" + args + "`");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Prefix set to `" + args + "`");
+						msg.channel.send({embed});
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please set a prefix shorter than 20 characters!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please set a prefix shorter than 20 characters!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
 					storage.removeItemSync(msg.guild.id + "_prefix");
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Current set prefix has been reset!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Current set prefix has been reset!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Sets a new prefix for your server *(ADMIN COMMAND)*",
@@ -1073,25 +1141,25 @@ var commands = {
 		"response": function(bot, msg, args) {
 			if (args) {
 				if (args.length < 200) {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x7B68EE);
-					embed.setAuthor(msg.author.username, msg.author.avatarURL);
-					embed.setDescription(args);
-					//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x7B68EE)
+					.setAuthor(msg.author.username, msg.author.avatarURL)
+					.setDescription(args);
+					//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! How do I embed something I can't even say!?!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! How do I embed something I can't even say!?!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give something to embed!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give something to embed!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Puts text in a nice embed",
@@ -1099,7 +1167,7 @@ var commands = {
 	},
 	"invite": {
 		"response": function(bot, msg, args) {
-			msg.channel.sendMessage(refereeinvitelink);
+			msg.channel.send(refereeinvitelink);
 		},
 		"bio": "Gives an invite to referee",
 		"syntax": "invite"
@@ -1116,26 +1184,26 @@ var commands = {
 					if (index && index > -1) {
 						channelarray.splice(index, 1);
 						storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Commands are now enabled for this channel!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Commands are now enabled for this channel!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
 					channelarray.push(msg.channel.id);
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Commands are now disabled for this channel!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Commands are now disabled for this channel!");
+					msg.channel.send({embed});
 					storage.setItemSync(msg.guild.id + "_disabledchannels", channelarray);
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Toggles commands in that channel *(ADMIN COMMAND)*",
@@ -1144,11 +1212,11 @@ var commands = {
 	"coin": {
 		"response": function(bot, msg, args) {
 			var hort = utils.getRandomIntInclusive(1, 2) == 1 ? "Heads" : "Tails";
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0xFFFFFF);
-			embed.setTitle(hort);
-			//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0xFFFFFF)
+			.setTitle(hort);
+			//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+			msg.channel.send({embed});
 		},
 		"bio": "Flips coin",
 		"syntax": "coin"
@@ -1158,17 +1226,17 @@ var commands = {
 			var arglist = args.split(",");
 			if (arglist) {
 				var number = utils.getRandomIntInclusive(0, (arglist.length-1));
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFFFFFF);
-				embed.setTitle(arglist[number]);
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFFFFFF)
+				.setTitle(arglist[number]);
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give something to choose!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give something to choose!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Chooses between options separated by a comma (`,`)",
@@ -1181,17 +1249,17 @@ var commands = {
 				"Most likely", "Outlook good", "Yes", "Signs point to yes", "Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now",
 				"Concentrate and ask again", "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful"];
 				var number = utils.getRandomIntInclusive(0, (answers.length-1));
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFFFFFF);
-				embed.setTitle("Hmm... \n" + answers[number]);
-				//embed.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFFFFFF)
+				.setTitle("Hmm... \n" + answers[number]);
+				//.setFooter("referee-Shard " + bot.shard.id, "https://cdn.discordapp.com/avatars/289194076258172928/b0c96ffd7f8d65e88550afe8fc288e35.jpg?size=1024");
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please ask the 8ball a question!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please ask the 8ball a question!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Ask the 8ball a question",
@@ -1217,20 +1285,20 @@ var commands = {
 						for (var i = 0; i <= (results.length-1); i++) {
 							resultmessage += "[" + (i+1) + "] : " + results[i].choice + " - " + results[i].votes + " votes \n"
 						}
-						msg.channel.sendMessage(resultmessage + "```");
+						msg.channel.send(resultmessage + "```");
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give valid options!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give valid options!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! There is already a vote in progress!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! There is already a vote in progress!");
+					msg.channel.send({embed});
 				}
 			}
 			else if (arg1.toLowerCase() == "check") {
@@ -1241,7 +1309,7 @@ var commands = {
 				for (var i = 0; i <= (results.length-1); i++) {
 					resultmessage += "Option " + (i+1) + ": " + results[i].choice + " - " + results[i].votes + " votes \n"
 				}
-				msg.channel.sendMessage(resultmessage + "```");
+				msg.channel.send(resultmessage + "```");
 			}
 			else if (arg1.toLowerCase() == "end") {
 				if (storage.getItemSync(msg.guild.id + "_voteactive") == true) {
@@ -1254,7 +1322,7 @@ var commands = {
 						for (var i = 0; i <= (results.length-1); i++) {
 							resultmessage += "Option " + (i+1) + ": " + results[i].choice + " - " + results[i].votes + " votes \n"
 						}
-						msg.channel.sendMessage(resultmessage + "```");
+						msg.channel.send(resultmessage + "```");
 						delete voteobjects[msg.guild.id + "_votemodule"];
 						for (var i = 0; i < votedusers.length; i++) {
 							var el = votedusers[i];
@@ -1266,10 +1334,10 @@ var commands = {
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! There is no vote currently in progress!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! There is no vote currently in progress!");
+					msg.channel.send({embed});
 				}
 			}
 			else if (arg1 && !isNaN(arg1)) {
@@ -1288,34 +1356,34 @@ var commands = {
 							for (var i = 0; i <= (results2.length-1); i++) {
 								resultmessage += "Option " + (i+1) + ": " + results2[i].choice + " - " + results2[i].votes + " votes \n"
 							}
-							msg.channel.sendMessage(resultmessage + "```");
+							msg.channel.send(resultmessage + "```");
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid vote!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please give a valid vote!");
+							msg.channel.send({embed});
 						}
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! There is currently no vote in progress!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! There is currently no vote in progress!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! You've already voted!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! You've already voted!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give a valid option such as start, check, end, or an option you are voting for!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give a valid option such as start, check, end, or an option you are voting for!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Voting",
@@ -1330,24 +1398,24 @@ var commands = {
 				}
 				if (cleverbotdisabledcurrent = false) {
 					storage.setItemSync(msg.guild.id + "_cleverbotdisabled", true);
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Cleverbot is now disabled for this server!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Cleverbot is now disabled for this server!");
+					msg.channel.send({embed});
 				}
 				else {
 					storage.removeItemSync(msg.guild.id + "_cleverbotdisabled");
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Cleverbot is now enabled for this server!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Cleverbot is now enabled for this server!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Toggles clever in that server *(ADMIN COMMAND)*. To use cleverbot, just mention referee in the start of your message",
@@ -1355,43 +1423,51 @@ var commands = {
 	},
 	"play": {
 		"response": function(bot, msg, args) {
-			if (isMusicAdminRole(msg.member) == true) {
-				var voicechannel = msg.member.voiceChannel;
-				if (voicechannel) {
-					var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
-					if (!queue) {
-	 					queue = { 'disp': null, 'options': { seek: 0, volume: 1 }, 'songs': [] };
-						musicDisp[msg.guild.id + "_musicdispatcher"] = queue;
-					}
-					ytdl.getInfo(args).then(function (songinfo) {
-						queue['songs'].push({ link: args, info: songinfo });
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Song Added!");
-						msg.channel.sendEmbed(embed);
-						if (!queue['disp']) {
-							playNextSong(queue, voicechannel);
+			if (msg.guild.me.hasPermission("CONNECT")) {
+				if (isMusicAdminRole(msg.member) == true) {
+					var voicechannel = msg.member.voiceChannel;
+					if (voicechannel) {
+						var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
+						if (!queue) {
+		 					queue = { 'disp': null, 'options': { seek: 0, volume: 1 }, 'songs': [] };
+							musicDisp[msg.guild.id + "_musicdispatcher"] = queue;
 						}
-					}, function (reason) {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Looks like you gave an invalid link!");
-						msg.channel.sendEmbed(embed);
-					});
+						ytdl.getInfo(args).then(function (songinfo) {
+							queue['songs'].push({ link: args, info: songinfo });
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FFFF)
+							.setTitle("Song Added!");
+							msg.channel.send({embed});
+							if (!queue['disp']) {
+								playNextSong(queue, voicechannel);
+							}
+						}, function (reason) {
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Looks like you gave an invalid link!");
+							msg.channel.send({embed});
+						});
 
+					}
+					else {
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Looks like you aren't in a voice channel!");
+						msg.channel.send({embed});
+					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Looks like you aren't in a voice channel!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle(":no_entry: Error! I do not have the Connect permission so I can't join your voice channel!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Plays a song",
@@ -1406,24 +1482,24 @@ var commands = {
 						queue['songs'].splice(1);
 						queue['disp'].end();
 						delete musicDisp[msg.guild.id + "_musicdispatcher"];
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("All songs removed from queue!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("All songs removed from queue!");
+						msg.channel.send({embed});
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Music is not currently playing!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Music is not currently playing!");
+						msg.channel.send({embed});
 					}
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Stop playing music",
@@ -1443,17 +1519,17 @@ var commands = {
 						description += "\n" + el.info.title;
 					}
 				})
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FFFF);
-				embed.setTitle("Queue");
-				embed.setDescription(description);
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.setTitle("Queue")
+				.setDescription(description);
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Music is not currently playing!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Music is not currently playing!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Returns list of songs in queue",
@@ -1464,24 +1540,24 @@ var commands = {
 			if (isMusicAdminRole(msg.member) == true) {
 				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
 				if (queue && queue['disp']) {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Song Skipped!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Song Skipped!");
+					msg.channel.send({embed});
 					queue['disp'].end();
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Music is not currently playing!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Skips current song",
@@ -1491,16 +1567,16 @@ var commands = {
 		"response": function(bot, msg, args) {
 			var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
 			if (queue && queue['disp']) {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0x00FFFF);
-				embed.setTitle(queue['songs'][0].info.title);
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0x00FFFF)
+				.setTitle(queue['songs'][0].info.title);
+				msg.channel.send({embed});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Music is not currently playing!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Music is not currently playing!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Returns current playing song",
@@ -1518,17 +1594,17 @@ var commands = {
 					queue['disp'].end();
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Music is not currently playing!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Seeks current song",
@@ -1543,37 +1619,37 @@ var commands = {
 						var volumeint = parseInt(args);
 						if (!isNaN(volumeint)) {
 							queue['disp'].setVolume(volumeint/5);
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0x00FFFF);
-							embed.setTitle("Volume set to " + volumeint + "/10");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0x00FFFF)
+							.setTitle("Volume set to " + volumeint + "/10");
+							msg.channel.send({embed});
 						}
 						else {
-							var embed = new Discord.RichEmbed();
-							embed.setColor(0xFF0000);
-							embed.setTitle("Uh Oh! Please give a valid volume!");
-							msg.channel.sendEmbed(embed);
+							const embed = new Discord.RichEmbed()
+							.setColor(0xFF0000)
+							.setTitle("Uh Oh! Please give a valid volume!");
+							msg.channel.send({embed});
 						}
 					}
 					else {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Volume is " + (queue['disp'].volume*5) + "/10");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Volume is " + (queue['disp'].volume*5) + "/10");
+						msg.channel.send({embed});
 					}
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Music is not currently playing!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Sets volume from 1 to 10 or checks volume",
@@ -1587,32 +1663,32 @@ var commands = {
 						return el.name == args;
 					});;
 					if (role == null) {
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0xFF0000);
-						embed.setTitle("Uh Oh! Please give a valid role!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0xFF0000)
+						.setTitle("Uh Oh! Please give a valid role!");
+						msg.channel.send({embed});
 					}
 					else {
 						storage.setItemSync(msg.guild.id + "_musicadminroleid", role.id);
-						var embed = new Discord.RichEmbed();
-						embed.setColor(0x00FFFF);
-						embed.setTitle("Music Admin Role Set to " + role.name + "!");
-						msg.channel.sendEmbed(embed);
+						const embed = new Discord.RichEmbed()
+						.setColor(0x00FFFF)
+						.setTitle("Music Admin Role Set to " + role.name + "!");
+						msg.channel.send({embed});
 					}
 				}
 				else {
 					storage.removeItemSync(msg.guild.id + "_musicadminroleid")
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Music Admin Role Reset!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Music Admin Role Reset!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Sets Music Admin Role. Leaving the role name blank will reset your set music admin role. This command allows users with the role to control music command. If none is set, everyone is allowed to use the music commands.*(ADMIN COMMAND)*",
@@ -1624,23 +1700,23 @@ var commands = {
 				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
 				if (queue && queue['disp']) {
 					queue['disp'].pause();
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Player Paused!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Player Paused!");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Music is not currently playing!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Pauses the player",
@@ -1652,23 +1728,23 @@ var commands = {
 				var queue = musicDisp[msg.guild.id + "_musicdispatcher"];
 				if (queue && queue['disp']) {
 					queue['disp'].resume();
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0x00FFFF);
-					embed.setTitle("Player Resumed!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0x00FFFF)
+					.setTitle("Player Resumed!");
+					msg.channel.send({embed});
 				}
 				else {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("Uh Oh! Music is not currently playing!");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("Uh Oh! Music is not currently playing!");
+					msg.channel.send({embed});
 				}
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Looks like you don't have permission to use this command!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Resumes the player",
@@ -1683,13 +1759,13 @@ var commands = {
 					var letter = morse[el.toLowerCase()];
 					string += letter + "  ";
 				});
-				msg.channel.sendMessage(string, {split:true});
+				msg.channel.send(string, {split:true});
 			}
 			else {
-				var embed = new Discord.RichEmbed();
-				embed.setColor(0xFF0000);
-				embed.setTitle("Uh Oh! Please give something to morse!");
-				msg.channel.sendEmbed(embed);
+				const embed = new Discord.RichEmbed()
+				.setColor(0xFF0000)
+				.setTitle("Uh Oh! Please give something to morse!");
+				msg.channel.send({embed});
 			}
 		},
 		"bio": "Turns your message to morse code",
@@ -1846,7 +1922,7 @@ bot.on("guildMemberAdd", (member) => {
 		var welcomechannel = member.guild.channels.get(storage.getItemSync(member.guild.id + "_welcomechannel"));
 		if (welcomechannel) {
 			var newwelcome = welcomemessage.replace("{Mention}", "<@" + member.id + ">");
-			welcomechannel.sendMessage(newwelcome);
+			welcomechannel.send(newwelcome);
 		}
 	}
 });
@@ -1855,19 +1931,20 @@ bot.on("guildMemberRemove", (member) => {
 	if (leavemessage != "") {
 		var leavechannel = member.guild.channels.get(storage.getItemSync(member.guild.id + "_leavechannel"));
 		if (leavechannel) {
-			leavechannel.sendMessage(leavemessage);
+			leavechannel.send(leavemessage);
 		}
 	}
 });
-
 bot.on("guildCreate", (guild) => {
 	snekfetch.post(`https://discordbots.org/api/bots/289194076258172928/stats`)
     .send({server_count: bot.guilds.size})
     .set('Authorization', token.discordbotsorg)
     .then(console.log('Updated discordbots.org stats. Added ' + guild.name));
-	guild.defaultChannel.sendMessage("hi i'm referee and i got some fun tricks up my sleeve \nDo ()help for help or look at my full documentation here: https://github.com/redgey/referee/blob/master/README.md");
+	guild.defaultChannel.send("hi i'm referee and i got some fun tricks up my sleeve \nDo ()help for help or look at my full documentation here: https://github.com/redgey/referee/blob/master/README.md");
+	if (!guild.me.hasPermission("EMBED_LINKS")) {
+		guild.defaultChannel.send("It seems that I don't have the Embed Links permission. I need this for most of my commands to work properly. If I do not respond to a command, it may because of this.");
+	}
 });
-
 bot.on("guildDelete", (guild) => {
 	snekfetch.post(`https://discordbots.org/api/bots/289194076258172928/stats`)
     .send({server_count: bot.guilds.size})
@@ -1925,19 +2002,19 @@ bot.on("message", msg => {
 					commandreply(bot, msg, args);
 				}
 				/*else if (command) {
-					var embed = new Discord.RichEmbed();
-					embed.setColor(0xFF0000);
-					embed.setTitle("What's that? Unknown Command!");
-					embed.setDescription("Do " + prefix + "help to get a list of available commands sent to your DMs.");
-					msg.channel.sendEmbed(embed);
+					const embed = new Discord.RichEmbed()
+					.setColor(0xFF0000)
+					.setTitle("What's that? Unknown Command!");
+					.setDescription("Do " + prefix + "help to get a list of available commands sent to your DMs.");
+					msg.channel.send({embed});
 				}*/
 			}
 		}
 		else {
-			var embed = new Discord.RichEmbed();
-			embed.setColor(0xFF0000);
-			embed.setTitle("Uh Oh! Commands don't work in DMs or Group DMs!");
-			msg.channel.sendEmbed(embed);
+			const embed = new Discord.RichEmbed()
+			.setColor(0xFF0000)
+			.setTitle("Uh Oh! Commands don't work in DMs or Group DMs!");
+			msg.channel.send({embed});
 		}
 	}
 	else if(msg.content.startsWith("<@" + bot.user.id + ">") || msg.content.startsWith("<@!" + bot.user.id + ">")) {
@@ -1952,7 +2029,7 @@ bot.on("message", msg => {
 		if (!channelarray.includes(msg.channel.id) && cleverbotdisabled == false) {
 			var message = msg.content.replace("<@" + bot.user.id + ">", "");
 			cleverbot.ask(message, function (err, response) {
-  			msg.channel.sendMessage(":speech_balloon: " + response + " :speech_balloon:");
+  			msg.channel.send(":speech_balloon: " + response + " :speech_balloon:");
 			});
 		}
 	}

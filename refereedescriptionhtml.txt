@@ -1,9 +1,3 @@
-<html>
-<head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
-<body>
 <h1>referee</h1>
 General Purpose Bot for Discord with all sorts of features like events, administration, and music!
 <br>
@@ -106,5 +100,3 @@ General Purpose Bot for Discord with all sorts of features like events, administ
 ()pause - Pauses the player 
 <br>
 ()resume - Resumes the player
-</body>
-</html>
