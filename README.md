@@ -65,6 +65,10 @@ https://discordapp.com/oauth2/authorize?client_id=289194076258172928&scope=bot&p
 
 ()morse - Turns your message to morse code
 
+()f - Pay respects
+
+()k - k
+
 ### Administration
 ()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
 

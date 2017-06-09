@@ -42,7 +42,6 @@ var utils = require('./utils.js');
 			triviachannel.send(questions[question].question);
 			completedquestions.push(question);
 			var outsidethis = this;
-			console.log(question);
 			timeout  = setTimeout(function() {
 				const embed = new Discord.RichEmbed()
 				.setColor(0x00FFFF)
@@ -122,7 +121,7 @@ var utils = require('./utils.js');
 
 		this.triviaStart = function(tchannel, Discord, storage, bot) {
 				triviachannel = tchannel;
-				var embed = new Discord.RichEmbed()
+				const embed = new Discord.RichEmbed()
 				.setColor(0x00FFFF)
 				.setTitle("Trivia Event Started");
 				triviachannel.send({embed});

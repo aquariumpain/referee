@@ -63,6 +63,11 @@ General Purpose Bot for Discord with all sorts of features like events, administ
 <br>
 ()embed - Puts text in a nice embed 
 <br>
+()morse - Turns your text to morse code
+<br>
+()f - Pay respects
+<br>
+()k - k
 <h3>Administration</h3>
 ()setadminrole - Sets Admin Role. The Admin Role can do commands flagged as (ADMIN COMMAND). The default is only the owner can usde these commands. Leaving the role name blank will reset your current admin role. (ADMIN COMMAND) 
 <br>
